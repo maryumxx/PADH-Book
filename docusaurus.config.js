@@ -3,14 +3,17 @@
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  baseUrl: "/Physical-AI-Humanoids-Robotic-Textbook/",
-  organizationName: "maryumxx",
-  projectName: "Physical-AI-Humanoids-Robotic-Textbook",
-  deploymentBranch: "gh-pages",
+  url: "https://padh-book.vercel.app",
+  baseUrl: "/",
+
+  organizationName: "maryumxx", // optional, can keep
+  projectName: "Physical-AI-Humanoids-Robotic-Textbook", // optional, can keep
+
+  deploymentBranch: undefined, // or remove this line
+
   title: "Physical AI Documentation Book",
   tagline: "Master the Robotic Nervous System",
   favicon: "img/favicon.ico",
-  url: "https://maryumxx.github.io",
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
