@@ -1,0 +1,569 @@
+---
+id: isaac-sim-synthetic-data
+title: "Chapter 1: NVIDIA Isaac Sim and Synthetic Data Generation"
+sidebar_label: "Ch 1: Isaac Sim & Synthetic Data"
+description: "Learn to create photorealistic simulations and generate synthetic training data using NVIDIA Isaac Sim and Omniverse."
+keywords: ["nvidia isaac sim", "synthetic data", "omniverse", "domain randomization", "usd", "photorealistic rendering", "rtx", "training data"]
+---
+
+# Chapter 1: NVIDIA Isaac Sim and Synthetic Data Generation
+
+## Introduction
+
+Training robust AI models for robotics requires vast amounts of labeled data—thousands or even millions of images showing objects, scenes, and scenarios your robot will encounter. Collecting and labeling real-world data is expensive, time-consuming, and often impractical. What if you could generate unlimited, perfectly labeled training data in a simulated environment?
+
+**NVIDIA Isaac Sim** solves this challenge by providing a photorealistic simulation platform built on **NVIDIA Omniverse**. It enables you to:
+
+- Create physically accurate, ray-traced environments
+- Generate synthetic datasets with perfect ground truth labels
+- Apply domain randomization to improve model generalization
+- Test perception algorithms before deploying to real hardware
+
+In this chapter, you'll learn how to set up Isaac Sim, create simulation scenes using USD (Universal Scene Description), and generate synthetic datasets for training perception models.
+
+---
+
+## What is NVIDIA Isaac Sim?
+
+**Isaac Sim** is a robotics simulation application built on **NVIDIA Omniverse**, a platform for 3D design collaboration and physically accurate simulation. Isaac Sim extends Omniverse with robotics-specific features:
+
+| Feature | Description |
+|---------|-------------|
+| **RTX Ray Tracing** | Photorealistic rendering using NVIDIA RTX GPUs |
+| **PhysX 5** | High-fidelity physics simulation for rigid bodies and articulations |
+| **ROS 2 Integration** | Native support for ROS 2 topics, services, and actions |
+| **Synthetic Data Generation** | Automated capture of RGB, depth, semantic segmentation, bounding boxes |
+| **Domain Randomization** | Randomize lighting, textures, object poses for robust AI training |
+| **USD Support** | Industry-standard format for 3D scene description and composition |
+
+### Isaac Sim vs. Gazebo
+
+| Aspect | Gazebo (Classic/New) | Isaac Sim |
+|--------|---------------------|-----------|
+| **Rendering** | OGRE (Classic), Ignition (New) | RTX ray tracing, path tracing |
+| **Physics** | ODE, Bullet, Dart | PhysX 5 (GPU-accelerated) |
+| **Photorealism** | Limited | Production-quality rendering |
+| **Synthetic Data** | Manual setup | Built-in replicator API |
+| **GPU Acceleration** | Limited | Full CUDA/RTX acceleration |
+| **Use Case** | General robotics simulation | AI training, perception, simulation-to-real |
+
+Isaac Sim excels at generating training data for vision-based AI models, while Gazebo is more suited for rapid prototyping and control algorithm testing.
+
+---
+
+## Setting Up Isaac Sim
+
+### System Requirements
+
+**Minimum:**
+- NVIDIA RTX GPU (RTX 2060 or better)
+- 16GB system RAM
+- Ubuntu 20.04 or 22.04 / Windows 10/11
+- 50GB free disk space
+
+**Recommended:**
+- NVIDIA RTX 3080 or better
+- 32GB system RAM
+- SSD storage
+
+### Installation Options
+
+**Option 1: Omniverse Launcher (Easiest)**
+
+1. Download the [NVIDIA Omniverse Launcher](https://www.nvidia.com/en-us/omniverse/download/)
+2. Install and launch the Omniverse Launcher
+3. Navigate to the **Exchange** tab
+4. Search for **Isaac Sim** and click **Install**
+5. Once installed, launch Isaac Sim from the **Library** tab
+
+**Option 2: Docker Container (For Linux/Cloud)**
+
+```bash
+# Pull the Isaac Sim container
+docker pull nvcr.io/nvidia/isaac-sim:2023.1.1
+
+# Run Isaac Sim in headless mode (for data generation)
+docker run --name isaac-sim --entrypoint bash \
+  --gpus all --network=host \
+  -e DISPLAY=$DISPLAY \
+  -v ~/docker/isaac-sim/cache/kit:/isaac-sim/kit/cache:rw \
+  -v ~/docker/isaac-sim/cache/ov:/root/.cache/ov:rw \
+  -v ~/docker/isaac-sim/cache/pip:/root/.cache/pip:rw \
+  -v ~/docker/isaac-sim/cache/glcache:/root/.cache/nvidia/GLCache:rw \
+  -v ~/docker/isaac-sim/cache/computecache:/root/.nv/ComputeCache:rw \
+  -v ~/docker/isaac-sim/logs:/root/.nvidia-omniverse/logs:rw \
+  -v ~/docker/isaac-sim/data:/root/.local/share/ov/data:rw \
+  -it nvcr.io/nvidia/isaac-sim:2023.1.1
+```
+
+**Option 3: Python Package (pip)**
+
+```bash
+# Install Isaac Sim as a Python package
+pip install isaacsim
+
+# Launch from Python
+python -m isaacsim
+```
+
+<Callout type="info" title="Cloud Alternative">
+Don't have a local NVIDIA GPU? You can run Isaac Sim on **NVIDIA Omniverse Cloud** or cloud GPU instances (AWS EC2 g4dn/g5, Azure NV-series).
+</Callout>
+
+---
+
+## Your First Isaac Sim Scene
+
+Let's create a simple scene with a humanoid robot in a warehouse environment.
+
+### 1. Launch Isaac Sim
+
+Open Isaac Sim from the Omniverse Launcher or via command line:
+
+```bash
+# Launch Isaac Sim GUI
+~/.local/share/ov/pkg/isaac_sim-*/isaac-sim.sh
+```
+
+### 2. Create a New Stage
+
+1. Go to **File → New** or press `Ctrl+N`
+2. You'll see an empty stage with a grid
+
+### 3. Add a Ground Plane
+
+```python
+# File: create_scene.py
+import omni
+from pxr import UsdGeom, Gf
+
+# Get the current stage
+stage = omni.usd.get_context().get_stage()
+
+# Create a ground plane
+ground_path = "/World/GroundPlane"
+ground = UsdGeom.Mesh.Define(stage, ground_path)
+
+# Set the plane dimensions (10m x 10m)
+ground.CreatePointsAttr([
+    (-5, -5, 0), (5, -5, 0), (5, 5, 0), (-5, 5, 0)
+])
+ground.CreateFaceVertexCountsAttr([4])
+ground.CreateFaceVertexIndicesAttr([0, 1, 2, 3])
+ground.CreateExtentAttr([(-5, -5, 0), (5, 5, 0)])
+```
+
+### 4. Import a Robot URDF
+
+Isaac Sim can import URDF files from Module 1:
+
+```python
+import omni.isaac.core.utils.nucleus as nucleus
+
+# Import a humanoid URDF
+from omni.importer.urdf import _urdf
+
+urdf_path = "/path/to/humanoid.urdf"
+stage = omni.usd.get_context().get_stage()
+
+# Import URDF and convert to USD
+_urdf.acquire_urdf_interface().parse_urdf(
+    urdf_path=urdf_path,
+    import_config=_urdf.ImportConfig(
+        merge_fixed_joints=False,
+        convex_decomp=False,
+        fix_base=False,
+        density=1000.0
+    )
+)
+```
+
+<Callout type="success" title="USD is the New URDF">
+While Isaac Sim supports URDF import, **USD (Universal Scene Description)** is the native format. USD files are more powerful, supporting animation, materials, and scene composition.
+</Callout>
+
+---
+
+## Generating Synthetic Data
+
+The power of Isaac Sim lies in its ability to generate labeled training data automatically.
+
+### Understanding the Replicator API
+
+**Replicator** is Isaac Sim's synthetic data generation engine. It can capture:
+
+- **RGB Images**: Standard color images
+- **Depth Maps**: Distance from camera to objects
+- **Semantic Segmentation**: Per-pixel class labels
+- **Instance Segmentation**: Individual object IDs
+- **Bounding Boxes 2D/3D**: Object detection labels
+- **Pose Ground Truth**: 6-DOF object poses
+
+### Example: Capturing a Single Frame
+
+```python
+import omni.replicator.core as rep
+
+# Create a camera
+camera = rep.create.camera(
+    position=(2, 2, 1.5),
+    look_at=(0, 0, 0.5)
+)
+
+# Attach annotators (data types to capture)
+rgb = rep.AnnotatorRegistry.get_annotator("rgb")
+depth = rep.AnnotatorRegistry.get_annotator("distance_to_camera")
+semantic = rep.AnnotatorRegistry.get_annotator("semantic_segmentation")
+bbox = rep.AnnotatorRegistry.get_annotator("bounding_box_2d_tight")
+
+# Render and capture
+rgb.attach([camera])
+depth.attach([camera])
+semantic.attach([camera])
+bbox.attach([camera])
+
+# Trigger rendering
+rep.orchestrator.step()
+
+# Get the data
+rgb_data = rgb.get_data()
+depth_data = depth.get_data()
+semantic_data = semantic.get_data()
+bbox_data = bbox.get_data()
+
+print(f"RGB shape: {rgb_data['data'].shape}")
+print(f"Depth shape: {depth_data['data'].shape}")
+print(f"Semantic shape: {semantic_data['data'].shape}")
+print(f"Bounding boxes: {bbox_data['data']}")
+```
+
+### Saving Data to Disk
+
+```python
+import omni.replicator.core as rep
+
+# Define output directory
+output_dir = "./synthetic_data"
+
+# Create a render product (camera view)
+camera = rep.create.camera(position=(2, 2, 1.5))
+render_product = rep.create.render_product(camera, (1280, 720))
+
+# Attach writer (format: KITTI, COCO, BasicWriter)
+writer = rep.WriterRegistry.get("BasicWriter")
+writer.initialize(output_dir=output_dir, rgb=True, semantic_segmentation=True, bounding_box_2d_tight=True)
+writer.attach([render_product])
+
+# Run for 100 frames
+rep.orchestrator.run_until_complete(num_frames=100)
+```
+
+This will generate:
+- `rgb/`: Color images
+- `semantic_segmentation/`: Class labels
+- `bounding_box_2d_tight/`: Detection annotations
+
+---
+
+## Domain Randomization
+
+**Domain randomization** improves AI model generalization by training on diverse, randomized scenes. Instead of a single static environment, you expose the model to variations in:
+
+- **Lighting**: Intensity, color, direction
+- **Textures**: Object materials and colors
+- **Object Poses**: Position and orientation
+- **Backgrounds**: Different environments
+- **Camera Parameters**: FOV, exposure, noise
+
+### Example: Randomizing Object Poses
+
+```python
+import omni.replicator.core as rep
+import numpy as np
+
+# Define a function to randomize sphere positions
+def randomize_sphere():
+    with rep.new_layer():
+        # Create 10 spheres with random positions
+        spheres = rep.create.sphere(
+            semantics=[("class", "sphere")],
+            count=10
+        )
+
+        # Randomize positions
+        with spheres:
+            rep.modify.pose(
+                position=rep.distribution.uniform(
+                    (-2, -2, 0.5), (2, 2, 2)
+                ),
+                rotation=rep.distribution.uniform(
+                    (0, 0, 0), (360, 360, 360)
+                )
+            )
+
+    return spheres.node
+
+# Register randomizer
+rep.randomizer.register(randomize_sphere)
+
+# Run for 500 randomized frames
+with rep.trigger.on_frame(num_frames=500):
+    rep.randomizer.randomize_sphere()
+```
+
+### Randomizing Lighting
+
+```python
+import omni.replicator.core as rep
+
+def randomize_lights():
+    # Create a dome light with random intensity and color
+    light = rep.create.light(
+        light_type="Dome",
+        intensity=rep.distribution.uniform(500, 3000),
+        color=rep.distribution.uniform((0.8, 0.8, 0.8), (1.0, 1.0, 1.0)),
+        temperature=rep.distribution.uniform(3500, 6500)
+    )
+    return light.node
+
+rep.randomizer.register(randomize_lights)
+```
+
+<Callout type="warning" title="Realism vs. Diversity Trade-off">
+Too much randomization can create unrealistic scenes that hurt model performance. Balance diversity with physical plausibility.
+</Callout>
+
+---
+
+## Exporting Data for Training
+
+Isaac Sim supports multiple output formats for common AI frameworks:
+
+### 1. COCO Format (Object Detection)
+
+```python
+writer = rep.WriterRegistry.get("COCOWriter")
+writer.initialize(output_dir="./coco_dataset", omit_empty_annotations=True)
+writer.attach([render_product])
+```
+
+Output structure:
+```
+coco_dataset/
+├── annotations.json
+├── images/
+│   ├── 0000.png
+│   ├── 0001.png
+│   └── ...
+```
+
+### 2. KITTI Format (Autonomous Driving)
+
+```python
+writer = rep.WriterRegistry.get("KittiWriter")
+writer.initialize(output_dir="./kitti_dataset")
+writer.attach([render_product])
+```
+
+### 3. Custom Format (NumPy Arrays)
+
+```python
+import numpy as np
+
+def save_frame(frame_id, rgb_data, depth_data, semantic_data):
+    np.save(f"./data/rgb_{frame_id}.npy", rgb_data)
+    np.save(f"./data/depth_{frame_id}.npy", depth_data)
+    np.save(f"./data/semantic_{frame_id}.npy", semantic_data)
+```
+
+---
+
+## USD: The Future of Robot Description
+
+**USD (Universal Scene Description)** is Pixar's open-source framework for 3D scene interchange. Isaac Sim uses USD as its native format, replacing URDF for complex scenes.
+
+### Why USD Over URDF?
+
+| Feature | URDF | USD |
+|---------|------|-----|
+| **Materials** | No | Yes (PBR, MDL) |
+| **Animation** | No | Yes (keyframes, skeletal) |
+| **Composition** | Limited | Layer-based composition |
+| **Physics** | Basic | Advanced (PhysX, articulations) |
+| **Lighting** | No | Full lighting support |
+| **Scene Graphs** | Tree-only | Arbitrary references |
+
+### Creating a USD Robot
+
+```python
+from pxr import Usd, UsdGeom, UsdPhysics, UsdShade
+
+# Create a new stage
+stage = Usd.Stage.CreateNew("humanoid.usd")
+
+# Define a root prim
+root = UsdGeom.Xform.Define(stage, "/World")
+
+# Add a humanoid base
+base = UsdGeom.Cube.Define(stage, "/World/Humanoid/Base")
+base.CreateSizeAttr(0.5)
+base.AddTranslateOp().Set((0, 0, 0.5))
+
+# Add physics (collision and rigid body)
+UsdPhysics.CollisionAPI.Apply(base.GetPrim())
+rigid_body = UsdPhysics.RigidBodyAPI.Apply(base.GetPrim())
+rigid_body.CreateMassAttr(10.0)
+
+# Save the stage
+stage.Save()
+print("Saved humanoid.usd")
+```
+
+### Loading a USD Asset
+
+```python
+from pxr import Usd
+
+# Open an existing USD file
+stage = Usd.Stage.Open("humanoid.usd")
+
+# Traverse the scene
+for prim in stage.Traverse():
+    print(f"Prim: {prim.GetPath()} (Type: {prim.GetTypeName()})")
+```
+
+---
+
+## Integrating with ROS 2
+
+Isaac Sim has native ROS 2 support, allowing you to:
+- Publish sensor data (camera, LiDAR, IMU) to ROS 2 topics
+- Subscribe to joint commands from ROS 2 controllers
+- Call ROS 2 services for robot control
+
+### Publishing Camera Images to ROS 2
+
+```python
+import omni.isaac.core.utils.extensions as ext_utils
+
+# Enable ROS 2 bridge extension
+ext_utils.enable_extension("omni.isaac.ros2_bridge")
+
+# Python script to publish camera
+from omni.isaac.ros2_bridge import create_camera_publisher
+
+camera_prim_path = "/World/Camera"
+topic_name = "/camera/rgb"
+
+# Create publisher
+create_camera_publisher(
+    camera_prim_path=camera_prim_path,
+    topic_name=topic_name,
+    node_namespace="isaac_sim"
+)
+```
+
+Now the camera images will be published to `/camera/rgb` as `sensor_msgs/Image`.
+
+---
+
+## Best Practices for Synthetic Data
+
+1. **Start with Real Data Statistics**: Analyze real-world data distributions (lighting, object scales) and match them in simulation
+2. **Progressive Randomization**: Start with small variations, gradually increase randomization
+3. **Validate on Real Data**: Always test your trained models on real-world data to verify sim-to-real transfer
+4. **Use Multiple Cameras**: Generate data from diverse viewpoints to improve model robustness
+5. **Leverage GPU Batching**: Use Isaac Sim's headless mode to generate thousands of frames in parallel
+
+---
+
+## Example: Full Synthetic Dataset Pipeline
+
+Here's a complete script to generate 1,000 randomized images with labels:
+
+```python
+import omni.replicator.core as rep
+import omni.isaac.core.utils.nucleus as nucleus
+
+# 1. Setup scene
+def create_warehouse_scene():
+    # Load warehouse asset from Nucleus
+    warehouse_usd = nucleus.get_assets_root_path() + "/Isaac/Environments/Simple_Warehouse/warehouse.usd"
+    rep.create.from_usd(warehouse_usd)
+
+    # Add a humanoid robot
+    robot_usd = nucleus.get_assets_root_path() + "/Isaac/Robots/Humanoid/humanoid.usd"
+    robot = rep.create.from_usd(robot_usd, semantics=[("class", "robot")])
+
+    return robot
+
+# 2. Randomizers
+def randomize_robot_pose(robot):
+    with robot:
+        rep.modify.pose(
+            position=rep.distribution.uniform((-3, -3, 0), (3, 3, 0)),
+            rotation=rep.distribution.uniform((0, 0, 0), (0, 0, 360))
+        )
+
+def randomize_lighting():
+    rep.create.light(
+        light_type="Dome",
+        intensity=rep.distribution.uniform(800, 2000),
+        color=rep.distribution.uniform((0.9, 0.9, 0.9), (1.0, 1.0, 1.0))
+    )
+
+# 3. Camera setup
+camera = rep.create.camera(position=(5, 5, 3), look_at=(0, 0, 0))
+render_product = rep.create.render_product(camera, (1024, 1024))
+
+# 4. Writer
+writer = rep.WriterRegistry.get("BasicWriter")
+writer.initialize(
+    output_dir="./humanoid_dataset",
+    rgb=True,
+    semantic_segmentation=True,
+    bounding_box_2d_tight=True,
+    distance_to_camera=True
+)
+writer.attach([render_product])
+
+# 5. Orchestration
+robot = create_warehouse_scene()
+rep.randomizer.register(randomize_robot_pose)
+rep.randomizer.register(randomize_lighting)
+
+with rep.trigger.on_frame(num_frames=1000):
+    rep.randomizer.randomize_robot_pose(robot)
+    rep.randomizer.randomize_lighting()
+
+# Run
+rep.orchestrator.run()
+print("Dataset generation complete!")
+```
+
+---
+
+## Summary
+
+In this chapter, you learned:
+
+- ✅ How to install and set up NVIDIA Isaac Sim
+- ✅ The differences between Isaac Sim and Gazebo
+- ✅ Creating simulation scenes with USD and URDF
+- ✅ Generating synthetic datasets with the Replicator API
+- ✅ Applying domain randomization for robust AI training
+- ✅ Exporting data in COCO, KITTI, and custom formats
+- ✅ Integrating Isaac Sim with ROS 2
+
+**Next Steps**: With synthetic data generation mastered, you're ready to deploy perception models on real hardware. In [**Chapter 2: Isaac ROS Hardware-Accelerated Perception**](./isaac-ros-perception), you'll learn how to use NVIDIA GPUs to process sensor data in real-time with Isaac ROS GEMs.
+
+---
+
+## Additional Resources
+
+- [Isaac Sim Documentation](https://docs.omniverse.nvidia.com/isaacsim/latest/)
+- [Replicator Tutorials](https://docs.omniverse.nvidia.com/extensions/latest/ext_replicator.html)
+- [USD Documentation](https://graphics.pixar.com/usd/docs/index.html)
+- [Omniverse Extensions](https://docs.omniverse.nvidia.com/extensions/latest/index.html)
+
+**Next**: [Chapter 2: Isaac ROS Hardware-Accelerated Perception →](./isaac-ros-perception)

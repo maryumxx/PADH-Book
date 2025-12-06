@@ -1,0 +1,572 @@
+---
+id: isaac-ros-perception
+title: "Chapter 2: Isaac ROS Hardware-Accelerated Perception"
+sidebar_label: "Ch 2: Isaac ROS Perception"
+description: "Deploy GPU-accelerated perception pipelines using Isaac ROS GEMs for real-time sensor processing and AI inference."
+keywords: ["isaac ros", "nvidia cuda", "tensorrt", "perception", "gems", "hardware acceleration", "vpi", "deep learning inference"]
+---
+
+# Chapter 2: Isaac ROS Hardware-Accelerated Perception
+
+## Introduction
+
+Real-time perception is the foundation of autonomous robotics. Humanoid robots must process sensor data—cameras, LiDAR, depth sensors—at high frame rates (30-60 FPS) to navigate safely and react to dynamic environments. Traditional CPU-based perception pipelines struggle to meet these requirements, often introducing latency that makes real-time operation impossible.
+
+**Isaac ROS** solves this challenge by leveraging **NVIDIA GPUs** for hardware-accelerated perception. It provides ROS 2 packages called **GEMs (Graph-Enabled Microservices)** that use CUDA, TensorRT, and VPI (Vision Programming Interface) to achieve:
+
+- **10-100x faster** image processing compared to CPU implementations
+- **Sub-10ms latency** for critical perception tasks
+- **Efficient power usage** on edge devices (NVIDIA Jetson)
+- **Seamless ROS 2 integration** with standard message types
+
+In this chapter, you'll learn how to install Isaac ROS, configure GPU-accelerated perception pipelines, and deploy AI models for object detection, semantic segmentation, and AprilTag detection.
+
+---
+
+## What is Isaac ROS?
+
+**Isaac ROS** is a collection of hardware-accelerated ROS 2 packages (GEMs) optimized for NVIDIA GPUs and Jetson platforms. Each GEM wraps GPU-accelerated libraries into standard ROS 2 nodes.
+
+### Core Components
+
+| Component | Purpose | Acceleration |
+|-----------|---------|--------------|
+| **Isaac ROS Image Pipeline** | Image preprocessing (resize, rectify, debayer) | CUDA, VPI |
+| **Isaac ROS DNN Inference** | Deep learning inference | TensorRT |
+| **Isaac ROS Visual SLAM** | Simultaneous localization and mapping | CUDA |
+| **Isaac ROS AprilTag** | Fiducial marker detection | CUDA |
+| **Isaac ROS Depth Segmentation** | Depth-based segmentation | CUDA |
+| **Isaac ROS Stereo** | Stereo vision and disparity | VPI, CUDA |
+
+### Isaac ROS vs. Standard ROS 2 Perception
+
+| Task | Standard ROS 2 (CPU) | Isaac ROS (GPU) | Speedup |
+|------|---------------------|----------------|---------|
+| Image Resize (1080p → 640p) | 15ms | 0.3ms | **50x** |
+| AprilTag Detection | 80ms | 2ms | **40x** |
+| Object Detection (YOLO) | 150ms | 8ms | **18x** |
+| Stereo Disparity (640x480) | 120ms | 4ms | **30x** |
+| Semantic Segmentation | 200ms | 12ms | **16x** |
+
+<Callout type="success" title="Why Hardware Acceleration Matters">
+At 30 FPS, each frame has a **33ms budget**. CPU-based perception often exceeds this, causing dropped frames and delayed reactions. GPU acceleration keeps perception under budget.
+</Callout>
+
+---
+
+## System Requirements
+
+### Hardware
+
+**Minimum:**
+- NVIDIA GPU: RTX 2060 or Jetson Nano
+- 8GB system RAM
+- Ubuntu 20.04 or 22.04
+
+**Recommended:**
+- NVIDIA GPU: RTX 3070 or Jetson AGX Orin
+- 16GB system RAM
+- SSD storage
+
+### Software
+
+- **ROS 2 Humble** or later
+- **NVIDIA Driver**: 525+ (for desktop GPUs)
+- **JetPack 5.1+** (for Jetson devices)
+- **Docker** (recommended for containerized deployment)
+
+---
+
+## Installing Isaac ROS
+
+Isaac ROS packages are distributed as Docker containers to ensure consistent dependencies and CUDA library versions.
+
+### Step 1: Install Prerequisites
+
+```bash
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Add user to docker group
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Install NVIDIA Container Toolkit
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | \
+  sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+sudo systemctl restart docker
+```
+
+### Step 2: Clone Isaac ROS Workspace
+
+```bash
+# Create workspace
+mkdir -p ~/workspaces/isaac_ros-dev/src
+cd ~/workspaces/isaac_ros-dev/src
+
+# Clone Isaac ROS common repository
+git clone https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common.git
+
+# Clone perception packages
+git clone https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_image_pipeline.git
+git clone https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_dnn_inference.git
+git clone https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_apriltag.git
+```
+
+### Step 3: Launch Isaac ROS Docker Container
+
+```bash
+cd ~/workspaces/isaac_ros-dev/src/isaac_ros_common
+./scripts/run_dev.sh
+```
+
+This script:
+- Builds a Docker image with CUDA, TensorRT, and ROS 2 Humble
+- Mounts your workspace at `/workspaces/isaac_ros-dev`
+- Provides GPU access via `--gpus all`
+
+### Step 4: Build Isaac ROS Packages
+
+Inside the Docker container:
+
+```bash
+cd /workspaces/isaac_ros-dev
+colcon build --symlink-install
+source install/setup.bash
+```
+
+<Callout type="info" title="Native Installation Alternative">
+You can install Isaac ROS natively (without Docker) on Ubuntu + JetPack systems, but Docker ensures compatibility across different CUDA/TensorRT versions.
+</Callout>
+
+---
+
+## Understanding Isaac ROS GEMs
+
+### What is a GEM?
+
+A **GEM (Graph-Enabled Microservice)** is a ROS 2 package that wraps GPU-accelerated functionality. GEMs use:
+
+1. **CUDA**: For parallel GPU computation
+2. **TensorRT**: For optimized deep learning inference
+3. **VPI (Vision Programming Interface)**: NVIDIA's computer vision acceleration library
+4. **ROS 2 Middleware**: Standard topics, services, and lifecycle nodes
+
+### GEM Architecture
+
+```
+ROS 2 Topic (sensor_msgs/Image)
+         ↓
+   [GEM Node (C++)]
+         ↓
+   CUDA/VPI Kernel (GPU)
+         ↓
+   ROS 2 Topic (Output)
+```
+
+Each GEM is a standard ROS 2 node that you can launch, remap, and configure like any other ROS 2 package.
+
+---
+
+## Example 1: Image Preprocessing with Isaac ROS
+
+Let's start with a simple pipeline: resizing and rectifying camera images.
+
+### Launch File: Image Resize
+
+```python
+# File: isaac_image_resize.launch.py
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        # Isaac ROS Resize Node
+        Node(
+            package='isaac_ros_image_proc',
+            executable='resize_node',
+            name='resize',
+            parameters=[{
+                'output_width': 640,
+                'output_height': 480,
+                'encoding_desired': 'rgb8',
+                'keep_aspect_ratio': True
+            }],
+            remappings=[
+                ('image', '/camera/image_raw'),
+                ('resize/image', '/camera/image_resized')
+            ]
+        )
+    ])
+```
+
+### Run the Node
+
+```bash
+# Terminal 1: Launch camera (replace with your camera driver)
+ros2 run usb_cam usb_cam_node --ros-args -p video_device:=/dev/video0
+
+# Terminal 2: Launch resize node
+ros2 launch isaac_ros_image_proc isaac_image_resize.launch.py
+
+# Terminal 3: Visualize output
+ros2 run rqt_image_view rqt_image_view /camera/image_resized
+```
+
+**Performance**: On an RTX 3070, this resizes 1920x1080 images to 640x480 in **~0.5ms per frame** (2000 FPS throughput).
+
+---
+
+## Example 2: AprilTag Detection (GPU-Accelerated)
+
+AprilTags are fiducial markers used for robot localization and object tracking. Isaac ROS provides a CUDA-accelerated AprilTag detector.
+
+### What are AprilTags?
+
+AprilTags are square markers with unique binary patterns, similar to QR codes but optimized for robotics. They provide:
+- **Unique IDs** for identification
+- **6-DOF pose estimation** (position + orientation)
+- **Robust detection** under varying lighting and angles
+
+### Launch AprilTag Detector
+
+```python
+# File: isaac_apriltag.launch.py
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='isaac_ros_apriltag',
+            executable='apriltag_node',
+            name='apriltag',
+            parameters=[{
+                'size': 0.162,  # Tag size in meters (162mm)
+                'max_tags': 20,
+                'tile_size': 4,  # 36h11 family (4x4 grid)
+            }],
+            remappings=[
+                ('image', '/camera/image_rect'),
+                ('camera_info', '/camera/camera_info')
+            ]
+        )
+    ])
+```
+
+### Visualize Detections
+
+```bash
+ros2 launch isaac_ros_apriltag isaac_apriltag.launch.py
+
+# Echo detected tags
+ros2 topic echo /tag_detections
+```
+
+**Output** (`isaac_ros_apriltag_interfaces/msg/AprilTagDetectionArray`):
+
+```yaml
+detections:
+  - id: 5
+    pose:
+      position: {x: 0.45, y: -0.12, z: 1.3}
+      orientation: {x: 0.02, y: 0.01, z: 0.98, w: 0.19}
+    center: [320, 240]
+    corners: [[280, 200], [360, 200], [360, 280], [280, 280]]
+```
+
+**Performance**: Detects 10 AprilTags in a 1280x720 image in **~2ms** (500 FPS).
+
+<Callout type="warning" title="Camera Calibration Required">
+AprilTag pose estimation requires accurate camera intrinsics. Use the `camera_calibration` package to calibrate your camera.
+</Callout>
+
+---
+
+## Example 3: Object Detection with TensorRT
+
+Isaac ROS integrates TensorRT for optimized deep learning inference. Let's deploy a YOLO-based object detector.
+
+### Step 1: Convert Model to TensorRT
+
+```bash
+# Download a pre-trained YOLO model (ONNX format)
+wget https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.onnx
+
+# Convert ONNX to TensorRT engine
+/usr/src/tensorrt/bin/trtexec \
+  --onnx=yolov8n.onnx \
+  --saveEngine=yolov8n.engine \
+  --fp16 \
+  --workspace=4096
+```
+
+### Step 2: Launch TensorRT Inference Node
+
+```python
+# File: isaac_tensorrt_yolo.launch.py
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='isaac_ros_dnn_inference',
+            executable='isaac_ros_dnn_inference',
+            name='dnn_inference',
+            parameters=[{
+                'model_file_path': '/workspaces/models/yolov8n.engine',
+                'engine_file_path': '/workspaces/models/yolov8n.engine',
+                'input_tensor_names': ['images'],
+                'output_tensor_names': ['output0'],
+                'input_binding_names': ['images'],
+                'output_binding_names': ['output0'],
+            }],
+            remappings=[
+                ('tensor_pub', '/tensor_sub'),
+            ]
+        ),
+        # Decoder node (YOLO-specific post-processing)
+        Node(
+            package='isaac_ros_yolov8',
+            executable='yolov8_decoder_node',
+            name='yolov8_decoder',
+            parameters=[{
+                'confidence_threshold': 0.5,
+                'nms_threshold': 0.4,
+            }]
+        )
+    ])
+```
+
+### Step 3: Run Inference
+
+```bash
+ros2 launch isaac_ros_dnn_inference isaac_tensorrt_yolo.launch.py
+
+# Visualize detections
+ros2 run isaac_ros_visualization detection_visualizer
+```
+
+**Performance**: YOLOv8n inference on 640x640 images in **~8ms** (125 FPS) on RTX 3070.
+
+---
+
+## Example 4: Semantic Segmentation with ESS (Stereo Depth)
+
+Isaac ROS includes **ESS (Embedded Stereo System)**, a DNN-based stereo depth estimator.
+
+### Launch ESS Disparity Node
+
+```python
+# File: isaac_ess_disparity.launch.py
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='isaac_ros_ess',
+            executable='ess_disparity_node',
+            name='ess_disparity',
+            parameters=[{
+                'engine_file_path': '/workspaces/models/ess.engine',
+            }],
+            remappings=[
+                ('left/image_rect', '/zed/left/image_rect_color'),
+                ('right/image_rect', '/zed/right/image_rect_color'),
+                ('left/camera_info', '/zed/left/camera_info'),
+                ('right/camera_info', '/zed/right/camera_info'),
+            ]
+        )
+    ])
+```
+
+**Input**: Stereo camera pair (ZED, RealSense D435i, etc.)
+**Output**: Disparity map (`stereo_msgs/DisparityImage`)
+
+**Performance**: 720p stereo disparity in **~4ms** (250 FPS).
+
+---
+
+## VPI (Vision Programming Interface)
+
+**VPI** is NVIDIA's library for computer vision acceleration, supporting:
+- **Stereo disparity** (SGM algorithm)
+- **Gaussian blur**, **Sobel edge detection**
+- **Harris corner detection**
+- **KLT feature tracking**
+
+### Example: Stereo Disparity with VPI
+
+```python
+# File: isaac_vpi_stereo.launch.py
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='isaac_ros_stereo_image_proc',
+            executable='disparity_node',
+            name='disparity',
+            parameters=[{
+                'backends': 'VPI',  # Use VPI backend
+                'confidence_threshold': 0,
+                'min_disparity': 0,
+                'max_disparity': 64,
+                'window_size': 5,
+            }]
+        )
+    ])
+```
+
+---
+
+## Optimizing Performance
+
+### 1. Use Zero-Copy with Nitros
+
+Isaac ROS uses **Nitros** (NVIDIA Isaac Transport for ROS) for zero-copy GPU memory transfers.
+
+**Traditional ROS 2**:
+```
+GPU → CPU (copy) → ROS 2 → CPU (copy) → GPU
+```
+
+**Nitros**:
+```
+GPU → GPU (zero-copy via shared memory)
+```
+
+Nitros is automatically enabled in Isaac ROS GEMs—no configuration needed.
+
+### 2. Tune TensorRT Precision
+
+TensorRT supports multiple precision modes:
+
+| Precision | Accuracy | Speed | Use Case |
+|-----------|----------|-------|----------|
+| **FP32** | Highest | Slowest | Debugging, baselines |
+| **FP16** | ~99% of FP32 | 2-3x faster | Production (RTX GPUs) |
+| **INT8** | ~95% of FP32 | 4-5x faster | Edge devices (Jetson) |
+
+Enable FP16 during model conversion:
+
+```bash
+trtexec --onnx=model.onnx --saveEngine=model_fp16.engine --fp16
+```
+
+### 3. Profile with Nsight Systems
+
+```bash
+# Capture GPU activity trace
+nsys profile --trace=cuda,nvtx ros2 launch my_package my_launch.py
+
+# Analyze with Nsight Systems GUI
+nsys-ui report.qdrep
+```
+
+---
+
+## Integrating Isaac ROS into Your Robot
+
+### Complete Perception Pipeline
+
+Here's a full example combining image preprocessing, AprilTag detection, and object detection:
+
+```python
+# File: humanoid_perception.launch.py
+from launch import LaunchDescription
+from launch_ros.actions import Node, ComposableNodeContainer
+from launch_ros.descriptions import ComposableNode
+
+def generate_launch_description():
+    container = ComposableNodeContainer(
+        name='perception_container',
+        namespace='',
+        package='rclcpp_components',
+        executable='component_container_mt',
+        composable_node_descriptions=[
+            # 1. Image resize
+            ComposableNode(
+                package='isaac_ros_image_proc',
+                plugin='nvidia::isaac_ros::image_proc::ResizeNode',
+                name='resize',
+                parameters=[{'output_width': 640, 'output_height': 480}],
+                remappings=[('image', '/camera/image_raw')]
+            ),
+            # 2. AprilTag detection
+            ComposableNode(
+                package='isaac_ros_apriltag',
+                plugin='nvidia::isaac_ros::apriltag::AprilTagNode',
+                name='apriltag',
+                parameters=[{'size': 0.162, 'max_tags': 20}]
+            ),
+            # 3. Object detection
+            ComposableNode(
+                package='isaac_ros_dnn_inference',
+                plugin='nvidia::isaac_ros::dnn_inference::TensorRTNode',
+                name='tensorrt',
+                parameters=[{'model_file_path': '/models/yolov8n.engine'}]
+            ),
+        ],
+        output='screen',
+    )
+
+    return LaunchDescription([container])
+```
+
+Launch:
+
+```bash
+ros2 launch humanoid_perception humanoid_perception.launch.py
+```
+
+---
+
+## Benchmarking Your Pipeline
+
+```bash
+# Install ros2 topic tools
+sudo apt install ros-humble-ros2-topic-tools
+
+# Measure topic frequency
+ros2 topic hz /camera/image_resized
+
+# Measure latency
+ros2 topic delay /camera/image_raw
+```
+
+---
+
+## Summary
+
+In this chapter, you learned:
+
+- ✅ How Isaac ROS accelerates perception using CUDA, TensorRT, and VPI
+- ✅ Installing and configuring Isaac ROS with Docker
+- ✅ Implementing GPU-accelerated image processing
+- ✅ Deploying AprilTag detection for localization
+- ✅ Running object detection with TensorRT inference
+- ✅ Using VPI for stereo vision
+- ✅ Optimizing performance with Nitros and FP16 precision
+
+**Next Steps**: Now that you can process sensor data at high frame rates, you're ready to implement **Visual SLAM** for localization and mapping. In [**Chapter 3: Visual SLAM for Humanoid Navigation**](./visual-slam-navigation), you'll learn how to build real-time maps using Isaac ROS Visual SLAM.
+
+---
+
+## Additional Resources
+
+- [Isaac ROS Documentation](https://nvidia-isaac-ros.github.io/)
+- [TensorRT Documentation](https://docs.nvidia.com/deeplearning/tensorrt/)
+- [VPI Documentation](https://docs.nvidia.com/vpi/)
+- [Nitros Developer Guide](https://nvidia-isaac-ros.github.io/concepts/nitros/index.html)
+
+**Next**: [Chapter 3: Visual SLAM for Humanoid Navigation →](./visual-slam-navigation)

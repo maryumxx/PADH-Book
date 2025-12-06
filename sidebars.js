@@ -38,6 +38,18 @@ const sidebars = {
       ],
       collapsed: false,
     },
+    {
+      type: 'category',
+      label: 'Module 3: The AI-Robot Brain',
+      items: [
+        'module-03-ai-robot-brain/module-03-ai-robot-brain',
+        'module-03-ai-robot-brain/isaac-sim-synthetic-data',
+        'module-03-ai-robot-brain/isaac-ros-perception',
+        'module-03-ai-robot-brain/visual-slam-navigation',
+        'module-03-ai-robot-brain/nav2-bipedal-planning',
+      ],
+      collapsed: false,
+    },
   ],
 };
 
