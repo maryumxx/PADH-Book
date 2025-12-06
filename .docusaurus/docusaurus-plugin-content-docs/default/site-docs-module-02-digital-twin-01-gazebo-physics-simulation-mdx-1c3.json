@@ -1,0 +1,40 @@
+{
+  "id": "module-02-digital-twin/gazebo-physics-simulation",
+  "title": "Chapter 1: Simulating Physics, Gravity, and Collisions in Gazebo",
+  "description": "Learn how Gazebo simulates physics, configure gravity and friction, and implement collision detection for robotic systems.",
+  "source": "@site/docs/module-02-digital-twin/01-gazebo-physics-simulation.mdx",
+  "sourceDirName": "module-02-digital-twin",
+  "slug": "/module-02-digital-twin/gazebo-physics-simulation",
+  "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/gazebo-physics-simulation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "id": "gazebo-physics-simulation",
+    "title": "Chapter 1: Simulating Physics, Gravity, and Collisions in Gazebo",
+    "sidebar_label": "Ch 1: Gazebo Physics",
+    "description": "Learn how Gazebo simulates physics, configure gravity and friction, and implement collision detection for robotic systems.",
+    "keywords": [
+      "gazebo",
+      "physics engine",
+      "collision",
+      "gravity",
+      "friction",
+      "ODE",
+      "bullet",
+      "simbody",
+      "simulation"
+    ]
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Module 2: Digital Twin",
+    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/"
+  },
+  "next": {
+    "title": "Ch 2: Building Environments",
+    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/building-environments"
+  }
+}

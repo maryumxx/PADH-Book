@@ -1,0 +1,20 @@
+{
+  "type": "mdx",
+  "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/about",
+  "source": "@site/src/pages/about.md",
+  "title": "About This Project",
+  "description": "Learn about the Physical AI Documentation Book project, its goals, and methodology",
+  "frontMatter": {
+    "id": "about",
+    "title": "About This Project",
+    "description": "Learn about the Physical AI Documentation Book project, its goals, and methodology",
+    "sidebar_label": "About",
+    "keywords": [
+      "about",
+      "physical ai",
+      "robotics education",
+      "learning resources"
+    ]
+  },
+  "unlisted": false
+}

@@ -1,0 +1,32 @@
+{
+  "id": "intro",
+  "title": "Welcome to Physical AI",
+  "description": "Learn about robotics, ROS 2, and the foundations of Physical AI",
+  "source": "@site/docs/intro.mdx",
+  "sourceDirName": ".",
+  "slug": "/intro",
+  "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/intro",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "intro",
+    "title": "Welcome to Physical AI",
+    "description": "Learn about robotics, ROS 2, and the foundations of Physical AI",
+    "sidebar_label": "Introduction",
+    "keywords": [
+      "physical ai",
+      "robotics",
+      "ros 2",
+      "machine learning",
+      "humanoid robots"
+    ],
+    "slug": "/intro"
+  },
+  "sidebar": "tutorialSidebar",
+  "next": {
+    "title": "1. ROS 2 Middleware",
+    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/ros-middleware"
+  }
+}

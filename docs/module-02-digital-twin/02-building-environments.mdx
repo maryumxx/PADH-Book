@@ -1,0 +1,688 @@
+---
+id: building-environments
+title: "Chapter 2: Building Simulation Environments"
+sidebar_label: "Ch 2: Building Environments"
+description: "Learn to create custom Gazebo worlds, spawn models, configure lighting, and design realistic testing environments for robotics."
+keywords: ["gazebo", "world", "sdf", "environment", "models", "lighting", "terrain", "simulation"]
+---
+
+# Chapter 2: Building Simulation Environments
+
+## Introduction
+
+A robotic digital twin is only as good as the environment it operates in. Whether you're testing a delivery robot navigating an office building or a humanoid walking across rough terrain, you need realistic, customizable simulation worlds.
+
+In this chapter, you'll learn how to build Gazebo worlds from scratch, populate them with models, configure lighting and environmental properties, and create testing scenarios that match your real-world deployment conditions.
+
+**Why this matters**: The right testing environment exposes edge cases and failure modes before they occur in the real world. A warehouse robot should be tested in a simulated warehouse. An outdoor rover should face simulated hills, rocks, and varying lighting conditions.
+
+## Gazebo World File Structure
+
+Every Gazebo simulation starts with a **world file** - an XML document (SDF format) that defines everything in the scene: physics settings, models, lighting, and more.
+
+### Basic World Template
+
+```xml
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <world name="my_world">
+
+    <!-- Physics configuration -->
+    <physics type="ode">
+      <gravity>0 0 -9.81</gravity>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+
+    <!-- Lighting -->
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <!-- Sun (directional light) -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- Ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+  </world>
+</sdf>
+```
+
+Save this as `basic_world.world` and launch it:
+
+```bash
+gazebo basic_world.world
+```
+
+You'll see an empty world with a ground plane and sunlight.
+
+### World File Sections Explained
+
+| Section | Purpose | Example Use Case |
+|---------|---------|------------------|
+| `<physics>` | Configure physics engine (see Chapter 1) | Set gravity, simulation speed |
+| `<scene>` | Visual environment settings | Ambient lighting, background color, shadows |
+| `<include>` | Import pre-built models | Add ground plane, sun, buildings |
+| `<model>` | Define custom objects | Create walls, obstacles, test objects |
+| `<light>` | Add custom light sources | Spotlights, room lighting, outdoor sun |
+| `<gui>` | Configure GUI camera and interface | Set initial camera position |
+
+## Including Pre-Built Models
+
+Gazebo ships with a library of pre-built models (ground planes, simple shapes, furniture, etc.). You include them using the `<include>` tag:
+
+```xml
+<!-- Include ground plane -->
+<include>
+  <uri>model://ground_plane</uri>
+</include>
+
+<!-- Include sun (directional light) -->
+<include>
+  <uri>model://sun</uri>
+</include>
+
+<!-- Include a table -->
+<include>
+  <uri>model://table</uri>
+  <pose>2 0 0 0 0 0</pose> <!-- Position: x=2, y=0, z=0 -->
+</include>
+
+<!-- Include a construction cone -->
+<include>
+  <uri>model://construction_cone</uri>
+  <pose>-1 1 0 0 0 0</pose>
+  <name>cone_1</name> <!-- Give it a unique name -->
+</include>
+```
+
+### Finding Available Models
+
+Gazebo models are stored in model databases. View available models:
+
+```bash
+# List models in Gazebo model database
+ls /usr/share/gazebo-11/models
+
+# Or browse online Gazebo model database
+# http://models.gazebosim.org/
+```
+
+Common useful models:
+- `ground_plane`: Flat infinite ground
+- `sun`: Directional light source (simulates sunlight)
+- `asphalt_plane`: Textured ground for outdoor scenes
+- `cafe_table`, `wood_cube_5cm`, `construction_barrel`: Indoor/outdoor props
+- `grey_wall`, `brick_wall_*`: Walls for building environments
+
+## Creating Custom Models
+
+For custom objects (walls, obstacles, test fixtures), you can define models directly in the world file:
+
+### Example: Simple Wall
+
+```xml
+<model name="wall_north">
+  <static>true</static> <!-- Wall doesn't move (performance optimization) -->
+  <pose>5 0 1 0 0 0</pose> <!-- Position: x=5, y=0, z=1 (center of wall) -->
+
+  <link name="wall_link">
+    <!-- Collision geometry -->
+    <collision name="collision">
+      <geometry>
+        <box>
+          <size>0.2 10 2</size> <!-- Width: 0.2m, Length: 10m, Height: 2m -->
+        </box>
+      </geometry>
+    </collision>
+
+    <!-- Visual geometry -->
+    <visual name="visual">
+      <geometry>
+        <box>
+          <size>0.2 10 2</size>
+        </box>
+      </geometry>
+      <material>
+        <ambient>0.7 0.7 0.7 1</ambient> <!-- Light gray color -->
+        <diffuse>0.7 0.7 0.7 1</diffuse>
+      </material>
+    </visual>
+  </link>
+</model>
+```
+
+### Example: Test Room (Four Walls)
+
+```xml
+<!-- World with four walls forming a 10m x 10m room -->
+<world name="test_room">
+  <physics type="ode">
+    <gravity>0 0 -9.81</gravity>
+    <max_step_size>0.001</max_step_size>
+    <real_time_factor>1.0</real_time_factor>
+    <real_time_update_rate>1000</real_time_update_rate>
+  </physics>
+
+  <include>
+    <uri>model://sun</uri>
+  </include>
+
+  <include>
+    <uri>model://ground_plane</uri>
+  </include>
+
+  <!-- North wall -->
+  <model name="wall_north">
+    <static>true</static>
+    <pose>5 0 1 0 0 0</pose>
+    <link name="link">
+      <collision name="collision">
+        <geometry>
+          <box><size>0.2 10 2</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.2 10 2</size></box>
+        </geometry>
+        <material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+        </material>
+      </visual>
+    </link>
+  </model>
+
+  <!-- South wall -->
+  <model name="wall_south">
+    <static>true</static>
+    <pose>-5 0 1 0 0 0</pose>
+    <link name="link">
+      <collision name="collision">
+        <geometry>
+          <box><size>0.2 10 2</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.2 10 2</size></box>
+        </geometry>
+        <material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+        </material>
+      </visual>
+    </link>
+  </model>
+
+  <!-- East wall -->
+  <model name="wall_east">
+    <static>true</static>
+    <pose>0 5 1 0 0 1.5707</pose> <!-- Rotated 90° around Z-axis -->
+    <link name="link">
+      <collision name="collision">
+        <geometry>
+          <box><size>0.2 10 2</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.2 10 2</size></box>
+        </geometry>
+        <material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+        </material>
+      </visual>
+    </link>
+  </model>
+
+  <!-- West wall -->
+  <model name="wall_west">
+    <static>true</static>
+    <pose>0 -5 1 0 0 1.5707</pose>
+    <link name="link">
+      <collision name="collision">
+        <geometry>
+          <box><size>0.2 10 2</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.2 10 2</size></box>
+        </geometry>
+        <material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+        </material>
+      </visual>
+    </link>
+  </model>
+</world>
+```
+
+## Lighting Configuration
+
+Proper lighting is essential for realistic rendering and camera/vision sensor testing.
+
+### Ambient Lighting
+
+Ambient light provides uniform illumination from all directions (simulates scattered light):
+
+```xml
+<scene>
+  <!-- RGBA values: 0.0 = dark, 1.0 = bright -->
+  <ambient>0.4 0.4 0.4 1</ambient> <!-- Moderate ambient light -->
+
+  <!-- Background color (sky) -->
+  <background>0.7 0.8 0.9 1</background> <!-- Light blue sky -->
+
+  <!-- Enable shadows for realism -->
+  <shadows>true</shadows>
+</scene>
+```
+
+### Directional Light (Sun)
+
+The `sun` model provides directional light simulating sunlight:
+
+```xml
+<!-- Predefined sun model -->
+<include>
+  <uri>model://sun</uri>
+</include>
+
+<!-- Or create custom directional light -->
+<light name="sun" type="directional">
+  <cast_shadows>true</cast_shadows>
+  <pose>0 0 10 0 0 0</pose>
+  <diffuse>0.8 0.8 0.8 1</diffuse>
+  <specular>0.2 0.2 0.2 1</specular>
+  <attenuation>
+    <range>1000</range>
+  </attenuation>
+  <direction>-0.5 0.1 -0.9</direction> <!-- Light direction vector -->
+</light>
+```
+
+### Point Lights (Indoor Lighting)
+
+Point lights emit in all directions from a single point (like light bulbs):
+
+```xml
+<!-- Ceiling light in test room -->
+<light name="ceiling_light" type="point">
+  <pose>0 0 2.5 0 0 0</pose> <!-- Position: center of room, 2.5m high -->
+  <diffuse>1 1 1 1</diffuse> <!-- White light -->
+  <specular>0.1 0.1 0.1 1</specular>
+  <attenuation>
+    <range>20</range> <!-- Light reaches 20m -->
+    <linear>0.01</linear> <!-- Attenuation factors -->
+    <constant>0.9</constant>
+    <quadratic>0.001</quadratic>
+  </attenuation>
+  <cast_shadows>false</cast_shadows> <!-- Indoor lights often don't cast shadows for performance -->
+</light>
+```
+
+### Spotlights (Focused Lighting)
+
+Spotlights emit a cone of light (useful for headlights, flashlights):
+
+```xml
+<light name="spotlight" type="spot">
+  <pose>0 0 3 0 0 0</pose>
+  <diffuse>1 1 1 1</diffuse>
+  <specular>0.1 0.1 0.1 1</specular>
+  <attenuation>
+    <range>50</range>
+    <linear>0.01</linear>
+    <constant>0.9</constant>
+    <quadratic>0.001</quadratic>
+  </attenuation>
+  <direction>0 0 -1</direction> <!-- Pointing straight down -->
+  <spot>
+    <inner_angle>0.6</inner_angle> <!-- Inner cone (radians) -->
+    <outer_angle>1.0</outer_angle> <!-- Outer cone (radians) -->
+    <falloff>1.0</falloff> <!-- Light intensity falloff -->
+  </spot>
+  <cast_shadows>true</cast_shadows>
+</light>
+```
+
+## Spawning Models at Runtime
+
+You can add models to a running Gazebo world using the command line:
+
+### Using Gazebo GUI
+
+1. Launch Gazebo: `gazebo`
+2. Click "Insert" tab on the left panel
+3. Select a model from the list
+4. Click in the world to place it
+
+### Using Command Line
+
+```bash
+# Spawn a model from Gazebo model database
+gz model --spawn-file=/path/to/model.sdf --model-name=my_model -x 0 -y 0 -z 1
+
+# Or use ROS 2 (if ros_gz_sim is installed)
+ros2 run ros_gz_sim create -world default -file /path/to/model.sdf -name my_model -x 0 -y 0 -z 1
+```
+
+### Example: Dynamically Spawning a Box
+
+Create a simple box model file `box.sdf`:
+
+```xml
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="dynamic_box">
+    <pose>0 0 1 0 0 0</pose>
+    <link name="link">
+      <collision name="collision">
+        <geometry>
+          <box><size>0.5 0.5 0.5</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.5 0.5 0.5</size></box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient> <!-- Red box -->
+        </material>
+      </visual>
+      <inertial>
+        <mass>1.0</mass>
+        <inertia>
+          <ixx>0.042</ixx>
+          <iyy>0.042</iyy>
+          <izz>0.042</izz>
+        </inertia>
+      </inertial>
+    </link>
+  </model>
+</sdf>
+```
+
+Spawn it in Gazebo:
+
+```bash
+gz model --spawn-file=box.sdf --model-name=test_box -x 2 -y 2 -z 0.5
+```
+
+## Creating Terrain and Outdoor Environments
+
+### Height Maps for Terrain
+
+Gazebo supports heightmap-based terrain from grayscale images:
+
+```xml
+<model name="terrain">
+  <static>true</static>
+  <link name="link">
+    <collision name="collision">
+      <geometry>
+        <heightmap>
+          <uri>model://my_terrain/materials/textures/heightmap.png</uri>
+          <size>100 100 10</size> <!-- X, Y size in meters, max Z height -->
+          <pos>0 0 -5</pos> <!-- Offset position -->
+        </heightmap>
+      </geometry>
+    </collision>
+
+    <visual name="visual">
+      <geometry>
+        <heightmap>
+          <uri>model://my_terrain/materials/textures/heightmap.png</uri>
+          <size>100 100 10</size>
+          <texture>
+            <diffuse>model://my_terrain/materials/textures/ground.jpg</diffuse>
+            <normal>model://my_terrain/materials/textures/ground_normal.jpg</normal>
+            <size>10</size> <!-- Texture tiling -->
+          </texture>
+        </heightmap>
+      </geometry>
+    </visual>
+  </link>
+</model>
+```
+
+**Creating heightmap images**:
+- Use grayscale images (PNG)
+- White pixels = highest elevation
+- Black pixels = lowest elevation
+- Resolution: 512x512 or 1024x1024 recommended
+
+### Textured Ground Planes
+
+For flat outdoor environments with texture:
+
+```xml
+<include>
+  <uri>model://asphalt_plane</uri>
+</include>
+
+<!-- Or custom textured plane -->
+<model name="grass_plane">
+  <static>true</static>
+  <link name="link">
+    <collision name="collision">
+      <geometry>
+        <plane>
+          <normal>0 0 1</normal>
+          <size>100 100</size>
+        </plane>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <geometry>
+        <plane>
+          <normal>0 0 1</normal>
+          <size>100 100</size>
+        </plane>
+      </geometry>
+      <material>
+        <script>
+          <uri>file://media/materials/scripts/gazebo.material</uri>
+          <name>Gazebo/Grass</name>
+        </script>
+      </material>
+    </visual>
+  </link>
+</model>
+```
+
+## Configuring the Camera View
+
+Set the initial camera position when the world loads:
+
+```xml
+<gui fullscreen='0'>
+  <camera name='user_camera'>
+    <pose>-8 0 5 0 0.4 0</pose> <!-- X, Y, Z, Roll, Pitch, Yaw -->
+    <view_controller>orbit</view_controller> <!-- orbit, fps, or ortho -->
+    <projection_type>perspective</projection_type>
+  </camera>
+</gui>
+```
+
+Camera view modes:
+- `orbit`: Rotate around a point (default, good for overview)
+- `fps`: First-person shooter style (WASD movement)
+- `ortho`: Orthographic projection (no perspective)
+
+## Practical Example: Warehouse Environment
+
+Let's create a complete warehouse testing environment:
+
+```xml
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <world name="warehouse">
+
+    <!-- Physics -->
+    <physics type="ode">
+      <gravity>0 0 -9.81</gravity>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+
+    <!-- Scene settings -->
+    <scene>
+      <ambient>0.5 0.5 0.5 1</ambient> <!-- Indoor ambient light -->
+      <background>0.3 0.3 0.3 1</background> <!-- Dark background -->
+      <shadows>true</shadows>
+    </scene>
+
+    <!-- Indoor ceiling lights -->
+    <light name="ceiling_light_1" type="point">
+      <pose>5 5 4 0 0 0</pose>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <attenuation>
+        <range>15</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+    </light>
+
+    <light name="ceiling_light_2" type="point">
+      <pose>-5 5 4 0 0 0</pose>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <attenuation>
+        <range>15</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+    </light>
+
+    <!-- Ground (concrete texture) -->
+    <include>
+      <uri>model://asphalt_plane</uri>
+    </include>
+
+    <!-- Walls (20m x 20m warehouse) -->
+    <model name="wall_north">
+      <static>true</static>
+      <pose>10 0 2 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.3 20 4</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.3 20 4</size></box></geometry>
+          <material><ambient>0.6 0.6 0.6 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_south">
+      <static>true</static>
+      <pose>-10 0 2 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.3 20 4</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.3 20 4</size></box></geometry>
+          <material><ambient>0.6 0.6 0.6 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_east">
+      <static>true</static>
+      <pose>0 10 2 0 0 1.5707</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.3 20 4</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.3 20 4</size></box></geometry>
+          <material><ambient>0.6 0.6 0.6 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_west">
+      <static>true</static>
+      <pose>0 -10 2 0 0 1.5707</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.3 20 4</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.3 20 4</size></box></geometry>
+          <material><ambient>0.6 0.6 0.6 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Storage shelves (using simple boxes as placeholders) -->
+    <include>
+      <uri>model://wood_cube_10cm</uri>
+      <name>shelf_1</name>
+      <pose>5 5 0.5 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://wood_cube_10cm</uri>
+      <name>shelf_2</name>
+      <pose>-5 5 0.5 0 0 0</pose>
+    </include>
+
+    <!-- Obstacles (cones for navigation testing) -->
+    <include>
+      <uri>model://construction_cone</uri>
+      <name>obstacle_1</name>
+      <pose>2 0 0 0 0 0</pose>
+    </include>
+
+    <!-- Camera view -->
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose>-15 -15 10 0 0.6 0.785</pose>
+        <view_controller>orbit</view_controller>
+      </camera>
+    </gui>
+
+  </world>
+</sdf>
+```
+
+Save as `warehouse.world` and launch:
+
+```bash
+gazebo warehouse.world
+```
+
+## Summary
+
+In this chapter, you learned:
+
+- Gazebo worlds are defined in SDF XML files with `<world>`, `<model>`, `<light>`, and `<scene>` elements
+- Pre-built models can be included using `<include>` tags with model URIs
+- Custom models are created with `<collision>`, `<visual>`, and `<inertial>` elements
+- Lighting includes ambient (uniform), directional (sun), point (bulbs), and spotlight types
+- Static models (`<static>true</static>`) improve performance for non-moving objects
+- Terrain can be created using heightmaps from grayscale images
+- Models can be spawned at runtime using Gazebo commands or ROS 2 integration
+
+**Next Steps**: Now that you can build realistic environments, proceed to [Chapter 3: High-Fidelity Rendering and Human-Robot Interaction in Unity](./unity-rendering-interaction) to learn how to create photorealistic visualizations and interactive interfaces.
+
+---
+
+**Further Reading**:
+- [SDF Specification](http://sdformat.org/)
+- [Gazebo Model Database](http://models.gazebosim.org/)
+- [Building a World Tutorial](http://gazebosim.org/tutorials?tut=build_world)

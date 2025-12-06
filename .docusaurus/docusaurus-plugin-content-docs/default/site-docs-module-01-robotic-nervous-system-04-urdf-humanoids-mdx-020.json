@@ -1,0 +1,36 @@
+{
+  "id": "module-01-robotic-nervous-system/urdf-humanoids",
+  "title": "Chapter 4 - URDF for Humanoids",
+  "description": "Learn to define humanoid robot structures using URDF - the Unified Robot Description Format",
+  "source": "@site/docs/module-01-robotic-nervous-system/04-urdf-humanoids.mdx",
+  "sourceDirName": "module-01-robotic-nervous-system",
+  "slug": "/module-01-robotic-nervous-system/urdf-humanoids",
+  "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/urdf-humanoids",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 4,
+  "frontMatter": {
+    "id": "urdf-humanoids",
+    "title": "Chapter 4 - URDF for Humanoids",
+    "description": "Learn to define humanoid robot structures using URDF - the Unified Robot Description Format",
+    "sidebar_label": "4. URDF for Humanoids",
+    "keywords": [
+      "urdf",
+      "humanoid",
+      "robot description",
+      "kinematics",
+      "rviz"
+    ]
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "3. Python rclpy Bridge",
+    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/python-rclpy-bridge"
+  },
+  "next": {
+    "title": "Module 2: Digital Twin",
+    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/"
+  }
+}

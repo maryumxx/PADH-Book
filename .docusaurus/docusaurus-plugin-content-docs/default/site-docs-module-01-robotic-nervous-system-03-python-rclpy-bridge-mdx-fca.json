@@ -1,0 +1,36 @@
+{
+  "id": "module-01-robotic-nervous-system/python-rclpy-bridge",
+  "title": "Chapter 3 - Python-to-ROS Bridging via rclpy",
+  "description": "Master Python robotics development with rclpy - the ROS 2 Python client library",
+  "source": "@site/docs/module-01-robotic-nervous-system/03-python-rclpy-bridge.mdx",
+  "sourceDirName": "module-01-robotic-nervous-system",
+  "slug": "/module-01-robotic-nervous-system/python-rclpy-bridge",
+  "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/python-rclpy-bridge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "id": "python-rclpy-bridge",
+    "title": "Chapter 3 - Python-to-ROS Bridging via rclpy",
+    "description": "Master Python robotics development with rclpy - the ROS 2 Python client library",
+    "sidebar_label": "3. Python rclpy Bridge",
+    "keywords": [
+      "rclpy",
+      "python",
+      "ros 2",
+      "robotics",
+      "client library"
+    ]
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "2. Nodes, Topics, Services",
+    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/nodes-topics-services"
+  },
+  "next": {
+    "title": "4. URDF for Humanoids",
+    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/urdf-humanoids"
+  }
+}

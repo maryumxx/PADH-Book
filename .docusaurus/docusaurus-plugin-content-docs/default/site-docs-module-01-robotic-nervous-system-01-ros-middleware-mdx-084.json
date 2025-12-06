@@ -1,0 +1,36 @@
+{
+  "id": "module-01-robotic-nervous-system/ros-middleware",
+  "title": "Chapter 1 - ROS 2 Middleware",
+  "description": "Understanding the Robot Operating System 2 middleware architecture and communication infrastructure",
+  "source": "@site/docs/module-01-robotic-nervous-system/01-ros-middleware.mdx",
+  "sourceDirName": "module-01-robotic-nervous-system",
+  "slug": "/module-01-robotic-nervous-system/ros-middleware",
+  "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/ros-middleware",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "id": "ros-middleware",
+    "title": "Chapter 1 - ROS 2 Middleware",
+    "description": "Understanding the Robot Operating System 2 middleware architecture and communication infrastructure",
+    "sidebar_label": "1. ROS 2 Middleware",
+    "keywords": [
+      "ros 2",
+      "middleware",
+      "dds",
+      "robotics",
+      "communication"
+    ]
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Introduction",
+    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/intro"
+  },
+  "next": {
+    "title": "2. Nodes, Topics, Services",
+    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/nodes-topics-services"
+  }
+}

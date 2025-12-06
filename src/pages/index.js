@@ -79,6 +79,13 @@ function ModuleOverview() {
       link: '/docs/module-01-robotic-nervous-system/ros-middleware',
       topics: ['ROS 2 Middleware', 'Nodes & Topics', 'Python rclpy', 'URDF Modeling'],
     },
+    {
+      title: 'Module 2: The Digital Twin',
+      description: 'Create realistic digital twins with Gazebo and Unity. Learn physics simulation, environment building, and sensor modeling.',
+      chapters: 4,
+      link: '/docs/module-02-digital-twin',
+      topics: ['Gazebo Physics', 'Building Environments', 'Unity Rendering', 'Sensor Simulation'],
+    },
   ];
 
   return (

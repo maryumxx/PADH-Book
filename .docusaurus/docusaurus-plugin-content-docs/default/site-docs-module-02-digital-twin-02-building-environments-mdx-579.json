@@ -1,0 +1,39 @@
+{
+  "id": "module-02-digital-twin/building-environments",
+  "title": "Chapter 2: Building Simulation Environments",
+  "description": "Learn to create custom Gazebo worlds, spawn models, configure lighting, and design realistic testing environments for robotics.",
+  "source": "@site/docs/module-02-digital-twin/02-building-environments.mdx",
+  "sourceDirName": "module-02-digital-twin",
+  "slug": "/module-02-digital-twin/building-environments",
+  "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/building-environments",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "id": "building-environments",
+    "title": "Chapter 2: Building Simulation Environments",
+    "sidebar_label": "Ch 2: Building Environments",
+    "description": "Learn to create custom Gazebo worlds, spawn models, configure lighting, and design realistic testing environments for robotics.",
+    "keywords": [
+      "gazebo",
+      "world",
+      "sdf",
+      "environment",
+      "models",
+      "lighting",
+      "terrain",
+      "simulation"
+    ]
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Ch 1: Gazebo Physics",
+    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/gazebo-physics-simulation"
+  },
+  "next": {
+    "title": "Ch 3: Unity & Interaction",
+    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/unity-rendering-interaction"
+  }
+}

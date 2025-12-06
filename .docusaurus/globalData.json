@@ -1,0 +1,78 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "path": "/Physical-AI-Humanoids-Robotic-Textbook/docs",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/Physical-AI-Humanoids-Robotic-Textbook/docs",
+          "mainDocId": "intro",
+          "docs": [
+            {
+              "id": "intro",
+              "path": "/Physical-AI-Humanoids-Robotic-Textbook/docs/intro",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "module-01-robotic-nervous-system/nodes-topics-services",
+              "path": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/nodes-topics-services",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "module-01-robotic-nervous-system/python-rclpy-bridge",
+              "path": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/python-rclpy-bridge",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "module-01-robotic-nervous-system/ros-middleware",
+              "path": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/ros-middleware",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "module-01-robotic-nervous-system/urdf-humanoids",
+              "path": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/urdf-humanoids",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "module-02-digital-twin/building-environments",
+              "path": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/building-environments",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "module-02-digital-twin/gazebo-physics-simulation",
+              "path": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/gazebo-physics-simulation",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "module-02-digital-twin/module-02-digital-twin",
+              "path": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "module-02-digital-twin/sensor-simulation",
+              "path": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/sensor-simulation",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "module-02-digital-twin/unity-rendering-interaction",
+              "path": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/unity-rendering-interaction",
+              "sidebar": "tutorialSidebar"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "tutorialSidebar": {
+              "link": {
+                "path": "/Physical-AI-Humanoids-Robotic-Textbook/docs/intro",
+                "label": "intro"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    }
+  }
+}

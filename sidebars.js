@@ -26,6 +26,18 @@ const sidebars = {
       ],
       collapsed: false,
     },
+    {
+      type: 'category',
+      label: 'Module 2: The Digital Twin',
+      items: [
+        'module-02-digital-twin/module-02-digital-twin',
+        'module-02-digital-twin/gazebo-physics-simulation',
+        'module-02-digital-twin/building-environments',
+        'module-02-digital-twin/unity-rendering-interaction',
+        'module-02-digital-twin/sensor-simulation',
+      ],
+      collapsed: false,
+    },
   ],
 };
 

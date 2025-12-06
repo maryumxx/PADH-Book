@@ -1,17 +1,16 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  baseUrl: "https://github.com/maryumxx/Physical-AI-Humanoids-Robotic-Textbook",
+  baseUrl: "/Physical-AI-Humanoids-Robotic-Textbook/",
   organizationName: "maryumxx",
   projectName: "Physical-AI-Humanoids-Robotic-Textbook",
   deploymentBranch: "gh-pages",
   title: "Physical AI Documentation Book",
   tagline: "Master the Robotic Nervous System",
   favicon: "img/favicon.ico",
-  url: "https://maryumxx.github.io/Physical-AI-Humanoids-Robotic-Textbook/",
+  url: "https://maryumxx.github.io",
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
