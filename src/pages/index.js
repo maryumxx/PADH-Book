@@ -86,6 +86,13 @@ function ModuleOverview() {
       link: '/docs/module-02-digital-twin',
       topics: ['Gazebo Physics', 'Building Environments', 'Unity Rendering', 'Sensor Simulation'],
     },
+    {
+      title: 'Module 3: The AI-Robot Brain',
+      description: 'Advanced perception, simulation training, and navigation pipelines for bipedal humanoid robots using NVIDIA Isaac technologies.',
+      chapters: 4,
+      link: '/docs/module-03-ai-robot-brain',
+      topics: ['Isaac Sim & Synthetic Data', 'Isaac ROS Perception', 'Visual SLAM', 'Nav2 Planning'],
+    },
   ];
 
   return (
