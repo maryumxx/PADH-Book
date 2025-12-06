@@ -1,0 +1,39 @@
+{
+  "id": "module-03-ai-robot-brain/isaac-ros-perception",
+  "title": "Chapter 2: Isaac ROS Hardware-Accelerated Perception",
+  "description": "Deploy GPU-accelerated perception pipelines using Isaac ROS GEMs for real-time sensor processing and AI inference.",
+  "source": "@site/docs/module-03-ai-robot-brain/02-isaac-ros-perception.mdx",
+  "sourceDirName": "module-03-ai-robot-brain",
+  "slug": "/module-03-ai-robot-brain/isaac-ros-perception",
+  "permalink": "/docs/module-03-ai-robot-brain/isaac-ros-perception",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "id": "isaac-ros-perception",
+    "title": "Chapter 2: Isaac ROS Hardware-Accelerated Perception",
+    "sidebar_label": "Ch 2: Isaac ROS Perception",
+    "description": "Deploy GPU-accelerated perception pipelines using Isaac ROS GEMs for real-time sensor processing and AI inference.",
+    "keywords": [
+      "isaac ros",
+      "nvidia cuda",
+      "tensorrt",
+      "perception",
+      "gems",
+      "hardware acceleration",
+      "vpi",
+      "deep learning inference"
+    ]
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Ch 1: Isaac Sim & Synthetic Data",
+    "permalink": "/docs/module-03-ai-robot-brain/isaac-sim-synthetic-data"
+  },
+  "next": {
+    "title": "Ch 3: Visual SLAM",
+    "permalink": "/docs/module-03-ai-robot-brain/visual-slam-navigation"
+  }
+}

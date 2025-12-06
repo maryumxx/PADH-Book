@@ -13,8 +13,8 @@
       "calendar": "gregory",
       "path": "en",
       "translate": false,
-      "url": "https://maryumxx.github.io",
-      "baseUrl": "/Physical-AI-Humanoids-Robotic-Textbook/"
+      "url": "https://padh-book.vercel.app",
+      "baseUrl": "/"
     }
   }
 }

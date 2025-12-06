@@ -4,137 +4,144 @@
  * Modify the docusaurus.config.js file at your site's root instead.
  */
 export default {
-  url: "https://padh-book.vercel.app",
-  baseUrl: "/",
-
-  organizationName: "maryumxx", // optional, can keep
-  projectName: "Physical-AI-Humanoids-Robotic-Textbook", // optional, can keep
-
-  deploymentBranch: undefined, // or remove this line
-
-  title: "Physical AI Documentation Book",
-  tagline: "Master the Robotic Nervous System",
-  favicon: "img/favicon.ico",
-
-  onBrokenLinks: "throw",
-  i18n: {
-    defaultLocale: "en",
-    locales: ["en"],
-    path: "i18n",
-    localeConfigs: {},
+  "url": "https://padh-book.vercel.app",
+  "baseUrl": "/",
+  "organizationName": "maryumxx",
+  "projectName": "Physical-AI-Humanoids-Robotic-Textbook",
+  "title": "Physical AI Documentation Book",
+  "tagline": "Master the Robotic Nervous System",
+  "favicon": "img/favicon.ico",
+  "onBrokenLinks": "throw",
+  "i18n": {
+    "defaultLocale": "en",
+    "locales": [
+      "en"
+    ],
+    "path": "i18n",
+    "localeConfigs": {}
   },
-  presets: [
+  "presets": [
     [
       "classic",
       {
-        docs: {
-          sidebarPath:
-            "C:\\Users\\Maryam\\OneDrive\\Desktop\\hackathon\\sidebars.js",
-          routeBasePath: "/docs",
+        "docs": {
+          "sidebarPath": "C:\\Users\\Maryam\\OneDrive\\Desktop\\hackathon\\sidebars.js",
+          "routeBasePath": "/docs"
         },
-        blog: false,
-        theme: {
-          customCss:
-            "C:\\Users\\Maryam\\OneDrive\\Desktop\\hackathon\\src\\css\\index.css",
+        "blog": false,
+        "theme": {
+          "customCss": "C:\\Users\\Maryam\\OneDrive\\Desktop\\hackathon\\src\\css\\index.css"
         },
-        sitemap: {
-          changefreq: "weekly",
-          priority: 0.5,
-        },
-      },
-    ],
+        "sitemap": {
+          "changefreq": "weekly",
+          "priority": 0.5
+        }
+      }
+    ]
   ],
-  themeConfig: {
-    image: "img/docusaurus-social-card.jpg",
-    navbar: {
-      title: "Physical AI Book",
-      logo: {
-        alt: "Physical AI Logo",
-        src: "img/logo.svg",
+  "themeConfig": {
+    "image": "img/docusaurus-social-card.jpg",
+    "navbar": {
+      "title": "Physical AI Book",
+      "logo": {
+        "alt": "Physical AI Logo",
+        "src": "img/logo.svg"
       },
-      items: [
+      "items": [
         {
-          type: "docSidebar",
-          sidebarId: "tutorialSidebar",
-          position: "left",
-          label: "Documentation",
+          "type": "docSidebar",
+          "sidebarId": "tutorialSidebar",
+          "position": "left",
+          "label": "Documentation"
         },
         {
-          to: "/about",
-          label: "About",
-          position: "left",
+          "to": "/about",
+          "label": "About",
+          "position": "left"
         },
         {
-          to: "/contact",
-          label: "Contact",
-          position: "left",
-        },
+          "to": "/contact",
+          "label": "Contact",
+          "position": "left"
+        }
       ],
-      hideOnScroll: false,
+      "hideOnScroll": false
     },
-    footer: {
-      style: "dark",
-      links: [
+    "footer": {
+      "style": "dark",
+      "links": [
         {
-          title: "Documentation",
-          items: [
+          "title": "Documentation",
+          "items": [
             {
-              label: "Module 1: Robotic Nervous System",
-              to: "/docs/intro",
-            },
-          ],
+              "label": "Module 1: Robotic Nervous System",
+              "to": "/docs/intro"
+            }
+          ]
         },
         {
-          title: "More",
-          items: [
+          "title": "More",
+          "items": [
             {
-              label: "About",
-              to: "/about",
+              "label": "About",
+              "to": "/about"
             },
             {
-              label: "Contact",
-              to: "/contact",
-            },
-          ],
-        },
+              "label": "Contact",
+              "to": "/contact"
+            }
+          ]
+        }
       ],
-      copyright:
-        "Copyright © 2025 Physical AI Documentation Book. Built with Docusaurus.",
+      "copyright": "Copyright © 2025 Physical AI Documentation Book. Built with Docusaurus."
     },
-    prism: {
-      theme: {
-        plain: {
-          color: "#393A34",
-          backgroundColor: "#f6f8fa",
+    "prism": {
+      "theme": {
+        "plain": {
+          "color": "#393A34",
+          "backgroundColor": "#f6f8fa"
         },
-        styles: [
+        "styles": [
           {
-            types: ["comment", "prolog", "doctype", "cdata"],
-            style: {
-              color: "#999988",
-              fontStyle: "italic",
-            },
+            "types": [
+              "comment",
+              "prolog",
+              "doctype",
+              "cdata"
+            ],
+            "style": {
+              "color": "#999988",
+              "fontStyle": "italic"
+            }
           },
           {
-            types: ["namespace"],
-            style: {
-              opacity: 0.7,
-            },
+            "types": [
+              "namespace"
+            ],
+            "style": {
+              "opacity": 0.7
+            }
           },
           {
-            types: ["string", "attr-value"],
-            style: {
-              color: "#e3116c",
-            },
+            "types": [
+              "string",
+              "attr-value"
+            ],
+            "style": {
+              "color": "#e3116c"
+            }
           },
           {
-            types: ["punctuation", "operator"],
-            style: {
-              color: "#393A34",
-            },
+            "types": [
+              "punctuation",
+              "operator"
+            ],
+            "style": {
+              "color": "#393A34"
+            }
           },
           {
-            types: [
+            "types": [
               "entity",
               "url",
               "symbol",
@@ -144,185 +151,228 @@ export default {
               "constant",
               "property",
               "regex",
-              "inserted",
+              "inserted"
             ],
-            style: {
-              color: "#36acaa",
-            },
+            "style": {
+              "color": "#36acaa"
+            }
           },
           {
-            types: ["atrule", "keyword", "attr-name", "selector"],
-            style: {
-              color: "#00a4db",
-            },
+            "types": [
+              "atrule",
+              "keyword",
+              "attr-name",
+              "selector"
+            ],
+            "style": {
+              "color": "#00a4db"
+            }
           },
           {
-            types: ["function", "deleted", "tag"],
-            style: {
-              color: "#d73a49",
-            },
+            "types": [
+              "function",
+              "deleted",
+              "tag"
+            ],
+            "style": {
+              "color": "#d73a49"
+            }
           },
           {
-            types: ["function-variable"],
-            style: {
-              color: "#6f42c1",
-            },
+            "types": [
+              "function-variable"
+            ],
+            "style": {
+              "color": "#6f42c1"
+            }
           },
           {
-            types: ["tag", "selector", "keyword"],
-            style: {
-              color: "#00009f",
-            },
-          },
-        ],
+            "types": [
+              "tag",
+              "selector",
+              "keyword"
+            ],
+            "style": {
+              "color": "#00009f"
+            }
+          }
+        ]
       },
-      darkTheme: {
-        plain: {
-          color: "#F8F8F2",
-          backgroundColor: "#282A36",
+      "darkTheme": {
+        "plain": {
+          "color": "#F8F8F2",
+          "backgroundColor": "#282A36"
         },
-        styles: [
+        "styles": [
           {
-            types: ["prolog", "constant", "builtin"],
-            style: {
-              color: "rgb(189, 147, 249)",
-            },
+            "types": [
+              "prolog",
+              "constant",
+              "builtin"
+            ],
+            "style": {
+              "color": "rgb(189, 147, 249)"
+            }
           },
           {
-            types: ["inserted", "function"],
-            style: {
-              color: "rgb(80, 250, 123)",
-            },
+            "types": [
+              "inserted",
+              "function"
+            ],
+            "style": {
+              "color": "rgb(80, 250, 123)"
+            }
           },
           {
-            types: ["deleted"],
-            style: {
-              color: "rgb(255, 85, 85)",
-            },
+            "types": [
+              "deleted"
+            ],
+            "style": {
+              "color": "rgb(255, 85, 85)"
+            }
           },
           {
-            types: ["changed"],
-            style: {
-              color: "rgb(255, 184, 108)",
-            },
+            "types": [
+              "changed"
+            ],
+            "style": {
+              "color": "rgb(255, 184, 108)"
+            }
           },
           {
-            types: ["punctuation", "symbol"],
-            style: {
-              color: "rgb(248, 248, 242)",
-            },
+            "types": [
+              "punctuation",
+              "symbol"
+            ],
+            "style": {
+              "color": "rgb(248, 248, 242)"
+            }
           },
           {
-            types: ["string", "char", "tag", "selector"],
-            style: {
-              color: "rgb(255, 121, 198)",
-            },
+            "types": [
+              "string",
+              "char",
+              "tag",
+              "selector"
+            ],
+            "style": {
+              "color": "rgb(255, 121, 198)"
+            }
           },
           {
-            types: ["keyword", "variable"],
-            style: {
-              color: "rgb(189, 147, 249)",
-              fontStyle: "italic",
-            },
+            "types": [
+              "keyword",
+              "variable"
+            ],
+            "style": {
+              "color": "rgb(189, 147, 249)",
+              "fontStyle": "italic"
+            }
           },
           {
-            types: ["comment"],
-            style: {
-              color: "rgb(98, 114, 164)",
-            },
+            "types": [
+              "comment"
+            ],
+            "style": {
+              "color": "rgb(98, 114, 164)"
+            }
           },
           {
-            types: ["attr-name"],
-            style: {
-              color: "rgb(241, 250, 140)",
-            },
-          },
-        ],
+            "types": [
+              "attr-name"
+            ],
+            "style": {
+              "color": "rgb(241, 250, 140)"
+            }
+          }
+        ]
       },
-      additionalLanguages: [],
-      magicComments: [
+      "additionalLanguages": [],
+      "magicComments": [
         {
-          className: "theme-code-block-highlighted-line",
-          line: "highlight-next-line",
-          block: {
-            start: "highlight-start",
-            end: "highlight-end",
-          },
-        },
-      ],
+          "className": "theme-code-block-highlighted-line",
+          "line": "highlight-next-line",
+          "block": {
+            "start": "highlight-start",
+            "end": "highlight-end"
+          }
+        }
+      ]
     },
-    colorMode: {
-      defaultMode: "light",
-      disableSwitch: false,
-      respectPrefersColorScheme: true,
+    "colorMode": {
+      "defaultMode": "light",
+      "disableSwitch": false,
+      "respectPrefersColorScheme": true
     },
-    docs: {
-      sidebar: {
-        hideable: true,
-        autoCollapseCategories: true,
+    "docs": {
+      "sidebar": {
+        "hideable": true,
+        "autoCollapseCategories": true
       },
-      versionPersistence: "localStorage",
+      "versionPersistence": "localStorage"
     },
-    blog: {
-      sidebar: {
-        groupByYear: true,
-      },
+    "blog": {
+      "sidebar": {
+        "groupByYear": true
+      }
     },
-    metadata: [],
-    tableOfContents: {
-      minHeadingLevel: 2,
-      maxHeadingLevel: 3,
-    },
+    "metadata": [],
+    "tableOfContents": {
+      "minHeadingLevel": 2,
+      "maxHeadingLevel": 3
+    }
   },
-  plugins: [],
-  baseUrlIssueBanner: true,
-  future: {
-    v4: {
-      removeLegacyPostBuildHeadAttribute: false,
-      useCssCascadeLayers: false,
+  "plugins": [],
+  "baseUrlIssueBanner": true,
+  "future": {
+    "v4": {
+      "removeLegacyPostBuildHeadAttribute": false,
+      "useCssCascadeLayers": false
     },
-    experimental_faster: {
-      swcJsLoader: false,
-      swcJsMinimizer: false,
-      swcHtmlMinimizer: false,
-      lightningCssMinimizer: false,
-      mdxCrossCompilerCache: false,
-      rspackBundler: false,
-      rspackPersistentCache: false,
-      ssgWorkerThreads: false,
+    "experimental_faster": {
+      "swcJsLoader": false,
+      "swcJsMinimizer": false,
+      "swcHtmlMinimizer": false,
+      "lightningCssMinimizer": false,
+      "mdxCrossCompilerCache": false,
+      "rspackBundler": false,
+      "rspackPersistentCache": false,
+      "ssgWorkerThreads": false
     },
-    experimental_storage: {
-      type: "localStorage",
-      namespace: false,
+    "experimental_storage": {
+      "type": "localStorage",
+      "namespace": false
     },
-    experimental_router: "browser",
+    "experimental_router": "browser"
   },
-  onBrokenAnchors: "warn",
-  onDuplicateRoutes: "warn",
-  staticDirectories: ["static"],
-  customFields: {},
-  themes: [],
-  scripts: [],
-  headTags: [],
-  stylesheets: [],
-  clientModules: [],
-  titleDelimiter: "|",
-  noIndex: false,
-  markdown: {
-    format: "mdx",
-    mermaid: false,
-    emoji: true,
-    mdx1Compat: {
-      comments: true,
-      admonitions: true,
-      headingIds: true,
+  "onBrokenAnchors": "warn",
+  "onDuplicateRoutes": "warn",
+  "staticDirectories": [
+    "static"
+  ],
+  "customFields": {},
+  "themes": [],
+  "scripts": [],
+  "headTags": [],
+  "stylesheets": [],
+  "clientModules": [],
+  "titleDelimiter": "|",
+  "noIndex": false,
+  "markdown": {
+    "format": "mdx",
+    "mermaid": false,
+    "emoji": true,
+    "mdx1Compat": {
+      "comments": true,
+      "admonitions": true,
+      "headingIds": true
     },
-    anchors: {
-      maintainCase: false,
+    "anchors": {
+      "maintainCase": false
     },
-    hooks: {
-      onBrokenMarkdownLinks: "warn",
-      onBrokenMarkdownImages: "throw",
-    },
-  },
+    "hooks": {
+      "onBrokenMarkdownLinks": "warn",
+      "onBrokenMarkdownImages": "throw"
+    }
+  }
 };

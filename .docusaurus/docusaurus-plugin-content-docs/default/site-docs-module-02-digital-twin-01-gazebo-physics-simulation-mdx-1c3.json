@@ -5,7 +5,7 @@
   "source": "@site/docs/module-02-digital-twin/01-gazebo-physics-simulation.mdx",
   "sourceDirName": "module-02-digital-twin",
   "slug": "/module-02-digital-twin/gazebo-physics-simulation",
-  "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/gazebo-physics-simulation",
+  "permalink": "/docs/module-02-digital-twin/gazebo-physics-simulation",
   "draft": false,
   "unlisted": false,
   "tags": [],
@@ -31,10 +31,10 @@
   "sidebar": "tutorialSidebar",
   "previous": {
     "title": "Module 2: Digital Twin",
-    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/"
+    "permalink": "/docs/module-02-digital-twin/"
   },
   "next": {
     "title": "Ch 2: Building Environments",
-    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/building-environments"
+    "permalink": "/docs/module-02-digital-twin/building-environments"
   }
 }

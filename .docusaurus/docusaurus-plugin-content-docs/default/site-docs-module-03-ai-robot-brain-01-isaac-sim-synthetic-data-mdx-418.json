@@ -1,0 +1,39 @@
+{
+  "id": "module-03-ai-robot-brain/isaac-sim-synthetic-data",
+  "title": "Chapter 1: NVIDIA Isaac Sim and Synthetic Data Generation",
+  "description": "Learn to create photorealistic simulations and generate synthetic training data using NVIDIA Isaac Sim and Omniverse.",
+  "source": "@site/docs/module-03-ai-robot-brain/01-isaac-sim-synthetic-data.mdx",
+  "sourceDirName": "module-03-ai-robot-brain",
+  "slug": "/module-03-ai-robot-brain/isaac-sim-synthetic-data",
+  "permalink": "/docs/module-03-ai-robot-brain/isaac-sim-synthetic-data",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "id": "isaac-sim-synthetic-data",
+    "title": "Chapter 1: NVIDIA Isaac Sim and Synthetic Data Generation",
+    "sidebar_label": "Ch 1: Isaac Sim & Synthetic Data",
+    "description": "Learn to create photorealistic simulations and generate synthetic training data using NVIDIA Isaac Sim and Omniverse.",
+    "keywords": [
+      "nvidia isaac sim",
+      "synthetic data",
+      "omniverse",
+      "domain randomization",
+      "usd",
+      "photorealistic rendering",
+      "rtx",
+      "training data"
+    ]
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Module 3: AI-Robot Brain",
+    "permalink": "/docs/module-03-ai-robot-brain/"
+  },
+  "next": {
+    "title": "Ch 2: Isaac ROS Perception",
+    "permalink": "/docs/module-03-ai-robot-brain/isaac-ros-perception"
+  }
+}

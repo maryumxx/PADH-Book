@@ -5,7 +5,7 @@
   "source": "@site/docs/module-01-robotic-nervous-system/01-ros-middleware.mdx",
   "sourceDirName": "module-01-robotic-nervous-system",
   "slug": "/module-01-robotic-nervous-system/ros-middleware",
-  "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/ros-middleware",
+  "permalink": "/docs/module-01-robotic-nervous-system/ros-middleware",
   "draft": false,
   "unlisted": false,
   "tags": [],
@@ -27,10 +27,10 @@
   "sidebar": "tutorialSidebar",
   "previous": {
     "title": "Introduction",
-    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/intro"
+    "permalink": "/docs/intro"
   },
   "next": {
     "title": "2. Nodes, Topics, Services",
-    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/nodes-topics-services"
+    "permalink": "/docs/module-01-robotic-nervous-system/nodes-topics-services"
   }
 }

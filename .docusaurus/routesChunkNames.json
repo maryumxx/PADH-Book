@@ -1,72 +1,92 @@
 {
-  "/Physical-AI-Humanoids-Robotic-Textbook/about-727": {
+  "/about-954": {
     "__comp": "1f391b9e",
     "__context": {
       "plugin": "a7456010"
     },
     "content": "356a0ac6"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/contact-2f3": {
+  "/contact-abe": {
     "__comp": "83e9e333",
     "__context": {
       "plugin": "a7456010"
     },
     "config": "5e9f5e1a"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/docs-71b": {
+  "/docs-1d2": {
     "__comp": "5e95c892",
     "__context": {
       "plugin": "aba21aa0"
     }
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/docs-751": {
+  "/docs-65d": {
     "__comp": "a7bd4aaa",
-    "__props": "292fc2ac"
+    "__props": "0058b4c6"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/docs-75a": {
+  "/docs-c66": {
     "__comp": "a94703ab"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/docs/intro-c7c": {
+  "/docs/intro-89a": {
     "__comp": "17896441",
     "content": "f8409a7e"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/nodes-topics-services-1b9": {
+  "/docs/module-01-robotic-nervous-system/nodes-topics-services-1db": {
     "__comp": "17896441",
     "content": "da85a273"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/python-rclpy-bridge-3c2": {
+  "/docs/module-01-robotic-nervous-system/python-rclpy-bridge-123": {
     "__comp": "17896441",
     "content": "fca5e073"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/ros-middleware-a22": {
+  "/docs/module-01-robotic-nervous-system/ros-middleware-48f": {
     "__comp": "17896441",
     "content": "0841d45e"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/urdf-humanoids-437": {
+  "/docs/module-01-robotic-nervous-system/urdf-humanoids-2a8": {
     "__comp": "17896441",
     "content": "02046e57"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/-9f3": {
+  "/docs/module-02-digital-twin/-cd9": {
     "__comp": "17896441",
     "content": "1ac1c8b1"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/building-environments-6ed": {
+  "/docs/module-02-digital-twin/building-environments-935": {
     "__comp": "17896441",
     "content": "579be10c"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/gazebo-physics-simulation-f0c": {
+  "/docs/module-02-digital-twin/gazebo-physics-simulation-091": {
     "__comp": "17896441",
     "content": "1c317f14"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/sensor-simulation-395": {
+  "/docs/module-02-digital-twin/sensor-simulation-b46": {
     "__comp": "17896441",
     "content": "dabf1eb5"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/unity-rendering-interaction-4fc": {
+  "/docs/module-02-digital-twin/unity-rendering-interaction-823": {
     "__comp": "17896441",
     "content": "72ed3582"
   },
-  "/Physical-AI-Humanoids-Robotic-Textbook/-876": {
+  "/docs/module-03-ai-robot-brain/-d26": {
+    "__comp": "17896441",
+    "content": "3f5a8e14"
+  },
+  "/docs/module-03-ai-robot-brain/isaac-ros-perception-11a": {
+    "__comp": "17896441",
+    "content": "4f9b3a45"
+  },
+  "/docs/module-03-ai-robot-brain/isaac-sim-synthetic-data-a68": {
+    "__comp": "17896441",
+    "content": "418b316e"
+  },
+  "/docs/module-03-ai-robot-brain/nav2-bipedal-planning-835": {
+    "__comp": "17896441",
+    "content": "ddc383ba"
+  },
+  "/docs/module-03-ai-robot-brain/visual-slam-navigation-4b0": {
+    "__comp": "17896441",
+    "content": "a2c50685"
+  },
+  "/-2e1": {
     "__comp": "c4f5d8e4",
     "__context": {
       "plugin": "a7456010"

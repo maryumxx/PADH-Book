@@ -1,0 +1,35 @@
+{
+  "id": "module-03-ai-robot-brain/nav2-bipedal-planning",
+  "title": "Chapter 4: Nav2 Path Planning for Bipedal Movement",
+  "description": "Configure the ROS 2 Navigation Stack (Nav2) for humanoid robots with bipedal motion constraints, footstep planning, and stability considerations.",
+  "source": "@site/docs/module-03-ai-robot-brain/04-nav2-bipedal-planning.mdx",
+  "sourceDirName": "module-03-ai-robot-brain",
+  "slug": "/module-03-ai-robot-brain/nav2-bipedal-planning",
+  "permalink": "/docs/module-03-ai-robot-brain/nav2-bipedal-planning",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 4,
+  "frontMatter": {
+    "id": "nav2-bipedal-planning",
+    "title": "Chapter 4: Nav2 Path Planning for Bipedal Movement",
+    "sidebar_label": "Ch 4: Nav2 Bipedal Planning",
+    "description": "Configure the ROS 2 Navigation Stack (Nav2) for humanoid robots with bipedal motion constraints, footstep planning, and stability considerations.",
+    "keywords": [
+      "nav2",
+      "path planning",
+      "bipedal navigation",
+      "humanoid navigation",
+      "footstep planning",
+      "costmap",
+      "behavior trees",
+      "recovery behaviors"
+    ]
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Ch 3: Visual SLAM",
+    "permalink": "/docs/module-03-ai-robot-brain/visual-slam-navigation"
+  }
+}

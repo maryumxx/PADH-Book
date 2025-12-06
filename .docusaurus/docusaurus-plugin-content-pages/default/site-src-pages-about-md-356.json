@@ -1,6 +1,6 @@
 {
   "type": "mdx",
-  "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/about",
+  "permalink": "/about",
   "source": "@site/src/pages/about.md",
   "title": "About This Project",
   "description": "Learn about the Physical AI Documentation Book project, its goals, and methodology",

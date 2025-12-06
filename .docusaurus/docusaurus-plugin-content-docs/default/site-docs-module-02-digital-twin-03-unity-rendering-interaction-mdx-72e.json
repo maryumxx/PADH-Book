@@ -5,7 +5,7 @@
   "source": "@site/docs/module-02-digital-twin/03-unity-rendering-interaction.mdx",
   "sourceDirName": "module-02-digital-twin",
   "slug": "/module-02-digital-twin/unity-rendering-interaction",
-  "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/unity-rendering-interaction",
+  "permalink": "/docs/module-02-digital-twin/unity-rendering-interaction",
   "draft": false,
   "unlisted": false,
   "tags": [],
@@ -31,10 +31,10 @@
   "sidebar": "tutorialSidebar",
   "previous": {
     "title": "Ch 2: Building Environments",
-    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/building-environments"
+    "permalink": "/docs/module-02-digital-twin/building-environments"
   },
   "next": {
     "title": "Ch 4: Sensor Simulation",
-    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/sensor-simulation"
+    "permalink": "/docs/module-02-digital-twin/sensor-simulation"
   }
 }

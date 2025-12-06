@@ -5,7 +5,7 @@
   "source": "@site/docs/module-02-digital-twin/02-building-environments.mdx",
   "sourceDirName": "module-02-digital-twin",
   "slug": "/module-02-digital-twin/building-environments",
-  "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/building-environments",
+  "permalink": "/docs/module-02-digital-twin/building-environments",
   "draft": false,
   "unlisted": false,
   "tags": [],
@@ -30,10 +30,10 @@
   "sidebar": "tutorialSidebar",
   "previous": {
     "title": "Ch 1: Gazebo Physics",
-    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/gazebo-physics-simulation"
+    "permalink": "/docs/module-02-digital-twin/gazebo-physics-simulation"
   },
   "next": {
     "title": "Ch 3: Unity & Interaction",
-    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-02-digital-twin/unity-rendering-interaction"
+    "permalink": "/docs/module-02-digital-twin/unity-rendering-interaction"
   }
 }

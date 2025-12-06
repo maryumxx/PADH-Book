@@ -1,0 +1,39 @@
+{
+  "id": "module-03-ai-robot-brain/visual-slam-navigation",
+  "title": "Chapter 3: Visual SLAM for Humanoid Navigation",
+  "description": "Master Visual SLAM techniques to enable real-time localization and mapping for humanoid robots using Isaac ROS and CUDA acceleration.",
+  "source": "@site/docs/module-03-ai-robot-brain/03-visual-slam-navigation.mdx",
+  "sourceDirName": "module-03-ai-robot-brain",
+  "slug": "/module-03-ai-robot-brain/visual-slam-navigation",
+  "permalink": "/docs/module-03-ai-robot-brain/visual-slam-navigation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "id": "visual-slam-navigation",
+    "title": "Chapter 3: Visual SLAM for Humanoid Navigation",
+    "sidebar_label": "Ch 3: Visual SLAM",
+    "description": "Master Visual SLAM techniques to enable real-time localization and mapping for humanoid robots using Isaac ROS and CUDA acceleration.",
+    "keywords": [
+      "visual slam",
+      "vslam",
+      "isaac ros visual slam",
+      "localization",
+      "mapping",
+      "odometry",
+      "loop closure",
+      "feature tracking"
+    ]
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Ch 2: Isaac ROS Perception",
+    "permalink": "/docs/module-03-ai-robot-brain/isaac-ros-perception"
+  },
+  "next": {
+    "title": "Ch 4: Nav2 Bipedal Planning",
+    "permalink": "/docs/module-03-ai-robot-brain/nav2-bipedal-planning"
+  }
+}

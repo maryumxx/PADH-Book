@@ -5,7 +5,7 @@
   "source": "@site/docs/module-01-robotic-nervous-system/03-python-rclpy-bridge.mdx",
   "sourceDirName": "module-01-robotic-nervous-system",
   "slug": "/module-01-robotic-nervous-system/python-rclpy-bridge",
-  "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/python-rclpy-bridge",
+  "permalink": "/docs/module-01-robotic-nervous-system/python-rclpy-bridge",
   "draft": false,
   "unlisted": false,
   "tags": [],
@@ -27,10 +27,10 @@
   "sidebar": "tutorialSidebar",
   "previous": {
     "title": "2. Nodes, Topics, Services",
-    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/nodes-topics-services"
+    "permalink": "/docs/module-01-robotic-nervous-system/nodes-topics-services"
   },
   "next": {
     "title": "4. URDF for Humanoids",
-    "permalink": "/Physical-AI-Humanoids-Robotic-Textbook/docs/module-01-robotic-nervous-system/urdf-humanoids"
+    "permalink": "/docs/module-01-robotic-nervous-system/urdf-humanoids"
   }
 }
