@@ -31,5 +31,9 @@
   "previous": {
     "title": "Ch 3: Visual SLAM",
     "permalink": "/docs/module-03-ai-robot-brain/visual-slam-navigation"
+  },
+  "next": {
+    "title": "Capstone Project",
+    "permalink": "/docs/module-04-vision-language-action/capstone-autonomous-humanoid"
   }
 }

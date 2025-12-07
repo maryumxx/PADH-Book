@@ -1,0 +1,23 @@
+{
+  "id": "module-04-vision-language-action/chapter1-completion",
+  "title": "chapter1-completion",
+  "description": "Human: \"Pick up the red box from shelf C7\"",
+  "source": "@site/docs/module-04-vision-language-action/chapter1-completion.md",
+  "sourceDirName": "module-04-vision-language-action",
+  "slug": "/module-04-vision-language-action/chapter1-completion",
+  "permalink": "/docs/module-04-vision-language-action/chapter1-completion",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Capstone Project",
+    "permalink": "/docs/module-04-vision-language-action/capstone-autonomous-humanoid"
+  },
+  "next": {
+    "title": "Cognitive Planning",
+    "permalink": "/docs/module-04-vision-language-action/cognitive-planning-llms"
+  }
+}

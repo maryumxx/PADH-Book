@@ -1,0 +1,43 @@
+{
+  "id": "module-04-vision-language-action/computer-vision-object-recognition",
+  "title": "Chapter 3: Computer Vision for Object Recognition",
+  "description": "Master vision foundation models (CLIP, SAM, Grounding DINO) for robot perception, implement object detection and 6D pose estimation, and build vision-to-grasp pipelines that ground language in visual reality.",
+  "source": "@site/docs/module-04-vision-language-action/03-computer-vision-object-recognition.mdx",
+  "sourceDirName": "module-04-vision-language-action",
+  "slug": "/module-04-vision-language-action/computer-vision-object-recognition",
+  "permalink": "/docs/module-04-vision-language-action/computer-vision-object-recognition",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "id": "computer-vision-object-recognition",
+    "title": "Chapter 3: Computer Vision for Object Recognition",
+    "sidebar_label": "Computer Vision",
+    "description": "Master vision foundation models (CLIP, SAM, Grounding DINO) for robot perception, implement object detection and 6D pose estimation, and build vision-to-grasp pipelines that ground language in visual reality.",
+    "keywords": [
+      "computer vision",
+      "clip",
+      "sam",
+      "segment anything",
+      "grounding dino",
+      "object detection",
+      "6d pose estimation",
+      "visual grounding",
+      "ros2 vision",
+      "perception pipeline",
+      "tensorrt",
+      "onnx"
+    ]
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Cognitive Planning",
+    "permalink": "/docs/module-04-vision-language-action/cognitive-planning-llms"
+  },
+  "next": {
+    "title": "Module 4: VLA",
+    "permalink": "/docs/module-04-vision-language-action/"
+  }
+}

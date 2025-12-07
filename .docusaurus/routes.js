@@ -14,15 +14,15 @@ export default [
   },
   {
     path: '/docs',
-    component: ComponentCreator('/docs', '1d2'),
+    component: ComponentCreator('/docs', '6d5'),
     routes: [
       {
         path: '/docs',
-        component: ComponentCreator('/docs', '65d'),
+        component: ComponentCreator('/docs', '4e0'),
         routes: [
           {
             path: '/docs',
-            component: ComponentCreator('/docs', 'c66'),
+            component: ComponentCreator('/docs', '6c9'),
             routes: [
               {
                 path: '/docs/intro',
@@ -111,6 +111,42 @@ export default [
               {
                 path: '/docs/module-03-ai-robot-brain/visual-slam-navigation',
                 component: ComponentCreator('/docs/module-03-ai-robot-brain/visual-slam-navigation', '4b0'),
+                exact: true,
+                sidebar: "tutorialSidebar"
+              },
+              {
+                path: '/docs/module-04-vision-language-action/',
+                component: ComponentCreator('/docs/module-04-vision-language-action/', '7ba'),
+                exact: true,
+                sidebar: "tutorialSidebar"
+              },
+              {
+                path: '/docs/module-04-vision-language-action/capstone-autonomous-humanoid',
+                component: ComponentCreator('/docs/module-04-vision-language-action/capstone-autonomous-humanoid', '4ec'),
+                exact: true,
+                sidebar: "tutorialSidebar"
+              },
+              {
+                path: '/docs/module-04-vision-language-action/chapter1-completion',
+                component: ComponentCreator('/docs/module-04-vision-language-action/chapter1-completion', '669'),
+                exact: true,
+                sidebar: "tutorialSidebar"
+              },
+              {
+                path: '/docs/module-04-vision-language-action/cognitive-planning-llms',
+                component: ComponentCreator('/docs/module-04-vision-language-action/cognitive-planning-llms', '541'),
+                exact: true,
+                sidebar: "tutorialSidebar"
+              },
+              {
+                path: '/docs/module-04-vision-language-action/computer-vision-object-recognition',
+                component: ComponentCreator('/docs/module-04-vision-language-action/computer-vision-object-recognition', '964'),
+                exact: true,
+                sidebar: "tutorialSidebar"
+              },
+              {
+                path: '/docs/module-04-vision-language-action/voice-to-action-whisper',
+                component: ComponentCreator('/docs/module-04-vision-language-action/voice-to-action-whisper', '008'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               }

@@ -1,0 +1,42 @@
+{
+  "id": "module-04-vision-language-action/cognitive-planning-llms",
+  "title": "Chapter 2: Cognitive Planning with LLMs",
+  "description": "Learn how to use Large Language Models for robot task planning, decompose natural language commands into executable action sequences, engineer prompts for robotics safety, and build adaptive replanning systems.",
+  "source": "@site/docs/module-04-vision-language-action/02-cognitive-planning-llms.mdx",
+  "sourceDirName": "module-04-vision-language-action",
+  "slug": "/module-04-vision-language-action/cognitive-planning-llms",
+  "permalink": "/docs/module-04-vision-language-action/cognitive-planning-llms",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "id": "cognitive-planning-llms",
+    "title": "Chapter 2: Cognitive Planning with LLMs",
+    "sidebar_label": "Cognitive Planning",
+    "description": "Learn how to use Large Language Models for robot task planning, decompose natural language commands into executable action sequences, engineer prompts for robotics safety, and build adaptive replanning systems.",
+    "keywords": [
+      "llm planning",
+      "cognitive robotics",
+      "task decomposition",
+      "gpt-4",
+      "llama-3",
+      "prompt engineering",
+      "robotics prompts",
+      "action sequences",
+      "replanning",
+      "safety validation",
+      "ros2 actions"
+    ]
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "chapter1-completion",
+    "permalink": "/docs/module-04-vision-language-action/chapter1-completion"
+  },
+  "next": {
+    "title": "Computer Vision",
+    "permalink": "/docs/module-04-vision-language-action/computer-vision-object-recognition"
+  }
+}

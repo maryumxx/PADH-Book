@@ -1,0 +1,43 @@
+{
+  "id": "module-04-vision-language-action/module-04-intro",
+  "title": "Module 4: Vision-Language-Action (VLA)",
+  "description": "The convergence of LLMs and robotics. Learn voice-to-action with Whisper, cognitive planning with LLMs, computer vision for object recognition, and complete an autonomous humanoid capstone project.",
+  "source": "@site/docs/module-04-vision-language-action/index.mdx",
+  "sourceDirName": "module-04-vision-language-action",
+  "slug": "/module-04-vision-language-action/",
+  "permalink": "/docs/module-04-vision-language-action/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "module-04-intro",
+    "title": "Module 4: Vision-Language-Action (VLA)",
+    "sidebar_label": "Module 4: VLA",
+    "description": "The convergence of LLMs and robotics. Learn voice-to-action with Whisper, cognitive planning with LLMs, computer vision for object recognition, and complete an autonomous humanoid capstone project.",
+    "keywords": [
+      "vla",
+      "vision-language-action",
+      "whisper",
+      "speech recognition",
+      "llm planning",
+      "cognitive robotics",
+      "computer vision",
+      "clip",
+      "sam",
+      "grounding dino",
+      "capstone project",
+      "autonomous humanoid",
+      "embodied ai"
+    ]
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Computer Vision",
+    "permalink": "/docs/module-04-vision-language-action/computer-vision-object-recognition"
+  },
+  "next": {
+    "title": "Voice-to-Action",
+    "permalink": "/docs/module-04-vision-language-action/voice-to-action-whisper"
+  }
+}

@@ -93,6 +93,13 @@ function ModuleOverview() {
       link: '/docs/module-03-ai-robot-brain',
       topics: ['Isaac Sim & Synthetic Data', 'Isaac ROS Perception', 'Visual SLAM', 'Nav2 Planning'],
     },
+    {
+      title: 'Module 4: Vision-Language-Action',
+      description: 'Integrate voice commands, LLM planning, and computer vision to build autonomous humanoid robots that understand language and interact with the world.',
+      chapters: 5,
+      link: '/docs/module-04-vision-language-action',
+      topics: ['Voice-to-Action (Whisper)', 'Cognitive Planning (LLMs)', 'Computer Vision (CLIP/SAM/DINO)', 'Capstone: Autonomous Humanoid'],
+    },
   ];
 
   return (
