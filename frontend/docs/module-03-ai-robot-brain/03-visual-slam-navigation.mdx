@@ -1,0 +1,550 @@
+---
+id: visual-slam-navigation
+title: "Chapter 3: Visual SLAM for Humanoid Navigation"
+sidebar_label: "Ch 3: Visual SLAM"
+description: "Master Visual SLAM techniques to enable real-time localization and mapping for humanoid robots using Isaac ROS and CUDA acceleration."
+keywords: ["visual slam", "vslam", "isaac ros visual slam", "localization", "mapping", "odometry", "loop closure", "feature tracking"]
+---
+
+# Chapter 3: Visual SLAM for Humanoid Navigation
+
+## Introduction
+
+Imagine your humanoid robot entering an unknown warehouse. To navigate safely, it must answer two fundamental questions simultaneously:
+
+1. **Where am I?** (Localization)
+2. **What does the environment look like?** (Mapping)
+
+**Visual SLAM (Simultaneous Localization and Mapping)** solves both problems by using camera data to build a map while tracking the robot's position within that map. This is a chicken-and-egg problem: you need a map to localize, and you need localization to build a map. SLAM algorithms elegantly solve this circular dependency.
+
+In this chapter, you'll learn:
+- The fundamentals of Visual SLAM (feature extraction, matching, pose estimation)
+- How to deploy **Isaac ROS Visual SLAM** with NVIDIA CUDA acceleration
+- Integrating Visual SLAM with ROS 2 navigation
+- Advanced techniques (loop closure, drift correction, multi-camera fusion)
+
+---
+
+## What is SLAM?
+
+**SLAM** is the process of constructing a map of an unknown environment while simultaneously tracking the robot's location within that map.
+
+### Types of SLAM
+
+| Type | Sensors | Strengths | Weaknesses |
+|------|---------|-----------|------------|
+| **LiDAR SLAM** | 2D/3D LiDAR | Accurate, works in dark | Expensive, heavy, high power |
+| **Visual SLAM** | Cameras (mono, stereo, RGB-D) | Cheap, lightweight, rich semantic info | Sensitive to lighting, textureless scenes |
+| **Inertial SLAM** | IMU | High-rate odometry | Drifts quickly without correction |
+| **Fusion SLAM** | Camera + IMU + LiDAR | Best accuracy and robustness | Complex sensor fusion |
+
+For humanoid robots, **Visual SLAM** is preferred because:
+- Cameras are lightweight and low-power
+- Visual data enables object recognition and scene understanding
+- Stereo or depth cameras provide 3D structure
+
+---
+
+## Visual SLAM Pipeline
+
+A typical Visual SLAM system consists of:
+
+```
+1. Feature Extraction → Detect keypoints (corners, edges)
+2. Feature Matching → Match features across frames
+3. Motion Estimation → Estimate camera movement (odometry)
+4. Mapping → Add new landmarks to the map
+5. Loop Closure → Detect revisited locations and correct drift
+6. Optimization → Refine poses and map (Bundle Adjustment)
+```
+
+### Example Visual SLAM Frameworks
+
+| Framework | Type | Features | ROS 2 Support |
+|-----------|------|----------|---------------|
+| **ORB-SLAM3** | Feature-based | Monocular, stereo, RGB-D | Via third-party wrappers |
+| **RTAB-Map** | Graph-based | Loop closure, large maps | Native ROS 2 |
+| **Isaac ROS Visual SLAM** | Feature-based | CUDA-accelerated, low latency | Native ROS 2 |
+| **OpenVSLAM** | Feature-based | Lightweight | Via third-party wrappers |
+
+**Isaac ROS Visual SLAM** is optimized for real-time performance on NVIDIA GPUs, achieving **sub-10ms latency** on RTX hardware.
+
+---
+
+## Isaac ROS Visual SLAM Architecture
+
+**Isaac ROS Visual SLAM** (cuVSLAM) uses:
+- **ORB features**: Fast corner detection (FAST) + binary descriptors
+- **CUDA acceleration**: Parallel feature extraction and matching
+- **Keyframe-based mapping**: Only select frames are added to the map
+- **Graph optimization**: Pose graph optimization for global consistency
+
+### Key Capabilities
+
+- **Stereo and RGB-D camera support**
+- **Visual odometry** (pose estimation between frames)
+- **Localization** (pose relative to the map)
+- **Loop closure detection** (detect revisited areas to correct drift)
+- **ROS 2 integration** (publishes `nav_msgs/Odometry` and `tf` transforms)
+
+---
+
+## Installing Isaac ROS Visual SLAM
+
+### Prerequisites
+
+- Isaac ROS Docker container (from Chapter 2)
+- Stereo camera (ZED, RealSense D435i, or Intel RealSense T265)
+- ROS 2 Humble
+
+### Step 1: Clone the Repository
+
+```bash
+cd ~/workspaces/isaac_ros-dev/src
+git clone https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_visual_slam.git
+```
+
+### Step 2: Build the Package
+
+Inside the Docker container:
+
+```bash
+cd /workspaces/isaac_ros-dev
+colcon build --packages-up-to isaac_ros_visual_slam
+source install/setup.bash
+```
+
+### Step 3: Download Sample Data (Optional)
+
+```bash
+# Download rosbag with stereo camera data
+wget https://nvidia-isaac-ros.github.io/data/r2b_galileo.bag
+```
+
+---
+
+## Running Isaac ROS Visual SLAM
+
+### Example 1: Stereo Camera SLAM
+
+#### Launch File
+
+```python
+# File: isaac_vslam_stereo.launch.py
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='isaac_ros_visual_slam',
+            executable='isaac_ros_visual_slam',
+            name='visual_slam',
+            parameters=[{
+                'enable_rectified_pose': True,
+                'denoise_input_images': False,
+                'rectified_images': True,
+                'enable_debug_mode': False,
+                'debug_dump_path': '/tmp/cuvslam',
+                'enable_slam_visualization': True,
+                'enable_landmarks_view': True,
+                'enable_observations_view': True,
+                'map_frame': 'map',
+                'odom_frame': 'odom',
+                'base_frame': 'base_link',
+                'input_base_frame': 'camera_link',
+                'camera_optical_frames': [
+                    'camera_infra1_optical_frame',
+                    'camera_infra2_optical_frame'
+                ],
+            }],
+            remappings=[
+                ('stereo_camera/left/image', '/camera/infra1/image_rect_raw'),
+                ('stereo_camera/left/camera_info', '/camera/infra1/camera_info'),
+                ('stereo_camera/right/image', '/camera/infra2/image_rect_raw'),
+                ('stereo_camera/right/camera_info', '/camera/infra2/camera_info'),
+            ]
+        )
+    ])
+```
+
+#### Run SLAM
+
+```bash
+# Terminal 1: Launch camera driver (Intel RealSense example)
+ros2 launch realsense2_camera rs_launch.py \
+  enable_infra1:=true enable_infra2:=true enable_color:=false
+
+# Terminal 2: Launch Visual SLAM
+ros2 launch isaac_ros_visual_slam isaac_vslam_stereo.launch.py
+
+# Terminal 3: Visualize in RViz
+rviz2 -d $(ros2 pkg prefix isaac_ros_visual_slam)/share/isaac_ros_visual_slam/rviz/default.rviz
+```
+
+#### What You'll See in RViz
+
+- **Odometry path** (green): Estimated robot trajectory
+- **Landmarks** (red points): 3D feature points in the map
+- **Camera frustum**: Current camera pose
+- **Loop closures** (blue lines): Connections when revisiting locations
+
+<Callout type="success" title="Real-Time Performance">
+Isaac ROS Visual SLAM processes 640x480 stereo images at **60 FPS** with lesser than 10ms latency on RTX 3070.
+</Callout>
+
+---
+
+## Example 2: RGB-D Camera SLAM
+
+For depth cameras (RealSense D435i, Kinect):
+
+```python
+# File: isaac_vslam_rgbd.launch.py
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='isaac_ros_visual_slam',
+            executable='isaac_ros_visual_slam',
+            name='visual_slam',
+            parameters=[{
+                'enable_rectified_pose': True,
+                'rectified_images': False,
+                'enable_imu_fusion': False,
+            }],
+            remappings=[
+                ('visual_slam/image_0', '/camera/color/image_raw'),
+                ('visual_slam/camera_info_0', '/camera/color/camera_info'),
+                ('visual_slam/depth/image_0', '/camera/depth/image_rect_raw'),
+                ('visual_slam/depth/camera_info_0', '/camera/depth/camera_info'),
+            ]
+        )
+    ])
+```
+
+---
+
+## Understanding Visual SLAM Outputs
+
+### 1. Odometry (`nav_msgs/Odometry`)
+
+Published on `/visual_slam/tracking/odometry`:
+
+```yaml
+header:
+  frame_id: odom
+child_frame_id: base_link
+pose:
+  position: {x: 1.23, y: -0.45, z: 0.02}
+  orientation: {x: 0.0, y: 0.0, z: 0.1, w: 0.995}
+twist:
+  linear: {x: 0.5, y: 0.0, z: 0.0}
+  angular: {x: 0.0, y: 0.0, z: 0.1}
+```
+
+### 2. TF Transforms
+
+Isaac ROS Visual SLAM publishes:
+- `map → odom`: Global correction (updated on loop closures)
+- `odom → base_link`: Continuous odometry
+
+```
+map
+ └─ odom
+     └─ base_link
+         └─ camera_link
+```
+
+### 3. Map Points (`sensor_msgs/PointCloud2`)
+
+Published on `/visual_slam/tracking/landmarks`:
+
+```yaml
+# 3D coordinates of tracked features
+points: [[x1, y1, z1], [x2, y2, z2], ...]
+```
+
+### 4. Tracking Status (`isaac_ros_visual_slam_interfaces/VisualSlamStatus`)
+
+Published on `/visual_slam/status`:
+
+```yaml
+tracking_status: "TRACKING"  # or "LOST"
+num_observations: 342
+num_landmarks: 1523
+loop_closure_count: 3
+```
+
+---
+
+## Loop Closure and Drift Correction
+
+### What is Loop Closure?
+
+**Loop closure** detects when the robot revisits a previously mapped area. This is critical for correcting accumulated drift.
+
+**Without loop closure:**
+```
+Start → ... → End (position error grows over time)
+```
+
+**With loop closure:**
+```
+Start → ... → revisit Start → Correct drift globally
+```
+
+### How Isaac ROS Detects Loop Closures
+
+1. **Visual similarity**: Compare current frame features with keyframes in the map
+2. **Geometric verification**: Verify spatial consistency (RANSAC)
+3. **Pose graph optimization**: Adjust all past poses to satisfy loop closure constraints
+
+### Enabling Loop Closure
+
+Loop closure is enabled by default in Isaac ROS Visual SLAM. Monitor it via:
+
+```bash
+ros2 topic echo /visual_slam/status | grep loop_closure_count
+```
+
+---
+
+## Localizing Against a Pre-Built Map
+
+Once you've built a map, you can save it and later **localize** against it (without re-building).
+
+### Step 1: Save the Map
+
+```bash
+# While SLAM is running
+ros2 service call /visual_slam/save_map \
+  isaac_ros_visual_slam_interfaces/srv/FilePath \
+  "{file_path: '/tmp/my_warehouse_map'}"
+```
+
+### Step 2: Load the Map for Localization
+
+```python
+# Update launch file parameter
+parameters=[{
+    'enable_localization_on_start': True,
+    'map_folder_path': '/tmp/my_warehouse_map',
+}]
+```
+
+### Step 3: Launch Localization Mode
+
+```bash
+ros2 launch isaac_ros_visual_slam isaac_vslam_stereo.launch.py
+```
+
+Now the robot will localize itself against the saved map without creating a new one.
+
+<Callout type="info" title="Map Persistence">
+Saved maps include keyframes, landmarks, and the pose graph. They can be reused across sessions for consistent localization.
+</Callout>
+
+---
+
+## Fusing IMU Data (VIO: Visual-Inertial Odometry)
+
+For even better accuracy, fuse camera and IMU data. This is called **VIO (Visual-Inertial Odometry)**.
+
+### Benefits of IMU Fusion
+
+- **Faster pose updates**: IMU runs at 200-500 Hz (vs. camera at 30-60 Hz)
+- **Better motion estimation**: Especially during fast movements
+- **Robustness**: IMU helps when visual features are scarce
+
+### Example: Enabling IMU Fusion
+
+```python
+parameters=[{
+    'enable_imu_fusion': True,
+}],
+remappings=[
+    ('visual_slam/imu', '/imu/data'),
+]
+```
+
+**Input**: `sensor_msgs/Imu` from an IMU (e.g., RealSense built-in IMU)
+
+---
+
+## Tuning Visual SLAM for Humanoid Robots
+
+### 1. Handle Dynamic Environments
+
+Humanoid robots often operate in dynamic spaces (people walking, objects moving). Enable outlier rejection:
+
+```python
+parameters=[{
+    'enable_outlier_rejection': True,
+    'outlier_rejection_threshold': 2.0,  # Stricter for dynamic scenes
+}]
+```
+
+### 2. Adjust Feature Count
+
+More features = better tracking, but slower processing:
+
+```python
+parameters=[{
+    'num_cameras': 2,
+    'max_features_per_camera': 400,  # Default: 400 (reduce for speed)
+}]
+```
+
+### 3. Optimize for Tall Aspect Ratio
+
+Humanoid cameras are often mounted high. Adjust the field of view assumptions if needed.
+
+---
+
+## Integrating with Nav2
+
+To use Visual SLAM for navigation, publish odometry to Nav2:
+
+```python
+# Nav2 expects odometry on /odom topic
+remappings=[
+    ('visual_slam/tracking/odometry', '/odom'),
+]
+```
+
+Then Nav2's `amcl` or `slam_toolbox` can fuse this with laser scans.
+
+---
+
+## Debugging Visual SLAM
+
+### Issue 1: Tracking Lost
+
+**Symptoms**: Status shows `LOST`, odometry stops updating
+
+**Causes**:
+- Insufficient features (textureless walls, uniform lighting)
+- Too fast motion (motion blur)
+- Camera not calibrated
+
+**Solutions**:
+- Add visual features to the environment (posters, markers)
+- Reduce robot speed
+- Recalibrate camera with `camera_calibration`
+
+### Issue 2: Drift Over Time
+
+**Symptoms**: Robot position drifts away from ground truth
+
+**Causes**:
+- No loop closures detected
+- Poor feature quality
+
+**Solutions**:
+- Revisit start location to trigger loop closure
+- Improve lighting conditions
+- Enable IMU fusion
+
+### Issue 3: High Latency
+
+**Symptoms**: Odometry lags behind real motion
+
+**Causes**:
+- Insufficient GPU resources
+- Too many features
+
+**Solutions**:
+- Reduce `max_features_per_camera`
+- Lower image resolution
+- Ensure no other GPU processes are running
+
+---
+
+## Visualizing SLAM in RViz
+
+Add these displays to RViz:
+
+1. **Odometry** (`/visual_slam/tracking/odometry`)
+   - Display Type: `Odometry`
+   - Show axes and path
+
+2. **Landmarks** (`/visual_slam/tracking/landmarks`)
+   - Display Type: `PointCloud2`
+   - Color by Z-axis
+
+3. **Camera Pose** (`/visual_slam/tracking/vo_pose_covariance`)
+   - Display Type: `PoseWithCovariance`
+
+4. **TF Tree**
+   - Display Type: `TF`
+   - Show `map`, `odom`, `base_link`
+
+---
+
+## Benchmarking Visual SLAM
+
+```bash
+# Record a rosbag for repeatability
+ros2 bag record -a -o slam_test.bag
+
+# Play back and measure
+ros2 bag play slam_test.bag
+
+# Analyze trajectory accuracy (requires ground truth)
+evo_ape bag slam_test.bag /visual_slam/tracking/odometry --pose_relation=trans_part
+```
+
+---
+
+## Advanced: Multi-Camera SLAM
+
+For 360° coverage, use multiple cameras:
+
+```python
+parameters=[{
+    'num_cameras': 4,
+    'camera_optical_frames': [
+        'camera_front_optical',
+        'camera_left_optical',
+        'camera_right_optical',
+        'camera_back_optical',
+    ],
+}],
+remappings=[
+    ('visual_slam/image_0', '/camera_front/image'),
+    ('visual_slam/image_1', '/camera_left/image'),
+    ('visual_slam/image_2', '/camera_right/image'),
+    ('visual_slam/image_3', '/camera_back/image'),
+]
+```
+
+---
+
+## Summary
+
+In this chapter, you learned:
+
+- ✅ The fundamentals of Visual SLAM (localization + mapping)
+- ✅ Installing and running Isaac ROS Visual SLAM
+- ✅ Processing stereo and RGB-D camera data
+- ✅ Understanding SLAM outputs (odometry, landmarks, TF)
+- ✅ Enabling loop closure for drift correction
+- ✅ Localizing against pre-built maps
+- ✅ Fusing IMU data for Visual-Inertial Odometry
+- ✅ Debugging and tuning for humanoid robots
+
+**Next Steps**: With localization and mapping in place, you're ready to plan paths and navigate autonomously. In [**Chapter 4: Nav2 Path Planning for Bipedal Movement**](./nav2-bipedal-planning), you'll learn how to configure Nav2 for humanoid navigation with footstep planning and balance constraints.
+
+---
+
+## Additional Resources
+
+- [Isaac ROS Visual SLAM Documentation](https://nvidia-isaac-ros.github.io/repositories_and_packages/isaac_ros_visual_slam/)
+- [ORB-SLAM3 Paper](https://arxiv.org/abs/2007.11898)
+- [ROS 2 tf2 Documentation](https://docs.ros.org/en/humble/Concepts/Intermediate/About-Tf2.html)
+- [RViz2 User Guide](https://github.com/ros2/rviz/blob/ros2/README.md)
+
+**Next**: [Chapter 4: Nav2 Path Planning for Bipedal Movement →](./nav2-bipedal-planning)

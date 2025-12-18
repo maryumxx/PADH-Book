@@ -1,0 +1,509 @@
+---
+id: unity-rendering-interaction
+title: "Chapter 3: High-Fidelity Rendering and Human-Robot Interaction in Unity"
+sidebar_label: "Ch 3: Unity & Interaction"
+description: "Learn Unity-ROS integration, photorealistic rendering pipelines, and human-robot interaction patterns for immersive digital twins."
+keywords: ["unity", "ros", "rendering", "visualization", "urp", "hdrp", "robotics hub", "tcp connector", "human-robot interaction"]
+---
+
+# Chapter 3: High-Fidelity Rendering and Human-Robot Interaction in Unity
+
+## Introduction
+
+While Gazebo excels at physics simulation, Unity brings photorealistic rendering, rich user interfaces, and immersive experiences to robotics. Unity is a game engine - optimized for visuals, interactivity, and cross-platform deployment.
+
+In this chapter, you'll learn how to connect Unity to ROS 2, synchronize robot state between Gazebo and Unity, create high-fidelity visualizations, and build interactive interfaces for human-robot collaboration.
+
+**Why this matters**: Unity enables stakeholder demos, operator training interfaces, telepresence systems, and augmented reality applications that Gazebo alone can't provide. It's the bridge between backend simulation and frontend user experience.
+
+## Unity vs. Gazebo: Complementary Tools
+
+| Feature | Gazebo | Unity |
+|---------|--------|-------|
+| **Primary Purpose** | Physics simulation | Rendering & interaction |
+| **Physics Accuracy** | High (ODE, Bullet, Simbody) | Moderate (PhysX, good for games) |
+| **Visual Quality** | Basic | Photorealistic (URP, HDRP) |
+| **Performance** | Optimized for physics | Optimized for graphics |
+| **User Interfaces** | Minimal GUI | Rich UI toolkit (Unity UI, UI Toolkit) |
+| **Platform Support** | Linux, macOS, Windows | All platforms + mobile, VR, AR |
+| **Best Use Case** | Backend simulation, testing | Frontend visualization, demos |
+
+**Common Pattern**: Run Gazebo for physics simulation (headless, no GUI) and Unity for visualization. They communicate via ROS topics.
+
+## Unity Robotics Hub Overview
+
+Unity provides the **Unity Robotics Hub** - a collection of packages for ROS integration:
+
+1. **ROS TCP Connector**: Enables Unity to send/receive ROS messages over TCP
+2. **URDF Importer**: Import robot URDF files directly into Unity
+3. **Visualization Tools**: Built-in visualizers for common ROS message types
+4. **Simulation Tools**: Sensors, controllers, and utilities for robotics
+
+### Installing Unity Robotics Hub
+
+#### Prerequisites
+
+- **Unity Editor**: 2020.2 or later (recommend 2021.3 LTS)
+- **ROS 2**: Humble or later
+- **Python 3**: For ROS TCP Endpoint server
+
+#### Installation Steps
+
+1. **Install Unity Editor** (if not already installed):
+   - Download from [unity.com](https://unity.com/download)
+   - Choose Unity Hub, then install Unity 2021.3 LTS
+   - Include "Linux Build Support" module
+
+2. **Create a new Unity project**:
+   - Open Unity Hub
+   - Click "New Project"
+   - Select "3D" template
+   - Name it `RobotDigitalTwin`
+   - Click "Create"
+
+3. **Install Unity Robotics Hub packages**:
+   - In Unity Editor, open Window > Package Manager
+   - Click "+" dropdown > "Add package from git URL"
+   - Add these packages one at a time:
+     ```
+     https://github.com/Unity-Technologies/ROS-TCP-Connector.git?path=/com.unity.robotics.ros-tcp-connector
+     https://github.com/Unity-Technologies/URDF-Importer.git?path=/com.unity.robotics.urdf-importer
+     https://github.com/Unity-Technologies/Robotics-Visualizations.git?path=/com.unity.robotics.visualizations
+     ```
+
+4. **Install ROS TCP Endpoint** (on Linux/ROS 2 machine):
+   ```bash
+   # Create workspace
+   mkdir -p ~/ros_tcp_ws/src
+   cd ~/ros_tcp_ws/src
+
+   # Clone ROS TCP Endpoint
+   git clone https://github.com/Unity-Technologies/ROS-TCP-Endpoint
+
+   # Build
+   cd ~/ros_tcp_ws
+   colcon build
+   source install/setup.bash
+   ```
+
+## Connecting Unity to ROS 2
+
+### Architecture Overview
+
+```
+┌─────────────┐         ┌──────────────┐         ┌──────────────┐
+│   Gazebo    │ ◄─────► │   ROS 2      │ ◄─────► │    Unity     │
+│  (Physics)  │  Topics │ (Middleware) │   TCP   │ (Rendering)  │
+└─────────────┘         └──────────────┘         └──────────────┘
+```
+
+- **Gazebo** publishes robot joint states, sensor data to ROS topics
+- **ROS TCP Endpoint** bridges ROS topics to TCP socket
+- **Unity ROS TCP Connector** receives data and updates Unity scene
+
+### Starting the ROS TCP Endpoint
+
+On your Linux/ROS 2 machine:
+
+```bash
+# Source ROS 2 and workspace
+source /opt/ros/humble/setup.bash
+source ~/ros_tcp_ws/install/setup.bash
+
+# Launch TCP Endpoint (default port: 10000)
+ros2 run ros_tcp_endpoint default_server_endpoint --ros-args -p ROS_IP:=0.0.0.0 -p ROS_TCP_PORT:=10000
+```
+
+You should see:
+```
+Starting server on 0.0.0.0:10000
+```
+
+### Configuring Unity ROS TCP Connector
+
+In Unity Editor:
+
+1. Go to **Robotics > ROS Settings**
+2. Set **ROS IP Address**: `<your-linux-machine-ip>` (e.g., `192.168.1.100`)
+3. Set **ROS Port**: `10000`
+4. Set **Protocol**: `ROS 2`
+5. Click "Apply"
+
+Test the connection:
+- Click **Robotics > ROS Settings > "Show HUD"**
+- Enter Play mode (press Play button)
+- HUD should show "Connected" status
+
+## Importing URDF Models into Unity
+
+Unity can import robot URDF files and automatically create GameObjects with correct hierarchy and transforms.
+
+### Example: Importing a Simple Robot
+
+1. **Prepare your URDF file** (e.g., `my_robot.urdf`)
+
+2. **Import into Unity**:
+   - In Unity, go to **Assets > Import Robot from URDF**
+   - Select your URDF file
+   - Configure import settings:
+     - **Mesh Decomposer**: Voxel (for collision meshes)
+     - **Axis Type**: Y-Up (Unity convention)
+     - **Convex Method**: Decomposition
+   - Click "Import URDF"
+
+3. **Result**: Unity creates a GameObject hierarchy matching your URDF structure:
+   ```
+   my_robot (root)
+   ├── base_link
+   ├── wheel_left
+   │   └── wheel_left_mesh
+   ├── wheel_right
+   │   └── wheel_right_mesh
+   └── sensor_link
+       └── camera
+   ```
+
+### Subscribing to Joint States
+
+Create a C# script to update robot joints from ROS:
+
+```csharp
+// File: JointStateSubscriber.cs
+using UnityEngine;
+using Unity.Robotics.ROSTCPConnector;
+using RosMessageTypes.Sensor;
+
+public class JointStateSubscriber : MonoBehaviour
+{
+    // ROS topic name
+    public string topicName = "joint_states";
+
+    // Joint names (must match URDF)
+    public string[] jointNames = { "wheel_left_joint", "wheel_right_joint" };
+
+    // Unity ArticulationBody references (assigned in Inspector)
+    public ArticulationBody[] joints;
+
+    void Start()
+    {
+        // Subscribe to ROS topic
+        ROSConnection.GetOrCreateInstance().Subscribe<JointStateMsg>(topicName, UpdateJoints);
+    }
+
+    void UpdateJoints(JointStateMsg jointStateMsg)
+    {
+        // Update each joint position
+        for (int i = 0; i < jointNames.Length; i++)
+        {
+            // Find joint index in message
+            int msgIndex = System.Array.IndexOf(jointStateMsg.name, jointNames[i]);
+            if (msgIndex != -1 && msgIndex < jointStateMsg.position.Length)
+            {
+                // Get current joint state
+                var drive = joints[i].xDrive;
+                drive.target = (float)jointStateMsg.position[msgIndex] * Mathf.Rad2Deg; // Convert rad to deg
+                joints[i].xDrive = drive;
+            }
+        }
+    }
+}
+```
+
+**Attach this script** to your robot GameObject:
+1. Select robot root GameObject
+2. In Inspector, click "Add Component"
+3. Select `JointStateSubscriber`
+4. Assign joint ArticulationBody references
+
+## High-Fidelity Rendering with URP/HDRP
+
+Unity offers two rendering pipelines for high-quality visuals:
+
+### Universal Render Pipeline (URP)
+
+**Best for**: Cross-platform projects, mobile, VR, good performance
+
+**Setup**:
+1. In Unity, go to **Window > Package Manager**
+2. Search "Universal RP" and install
+3. Create URP asset: **Assets > Create > Rendering > URP Asset (with Universal Renderer)**
+4. Set in **Edit > Project Settings > Graphics > Scriptable Render Pipeline Settings**
+
+**Features**:
+- Post-processing (bloom, ambient occlusion, color grading)
+- Real-time shadows
+- HDR rendering
+- Good performance on varied hardware
+
+### High Definition Render Pipeline (HDRP)
+
+**Best for**: High-end PCs, photorealistic quality, demos
+
+**Setup**:
+1. Install "High Definition RP" from Package Manager
+2. Create HDRP asset: **Assets > Create > Rendering > HDRP Asset**
+3. Set in Project Settings > Graphics
+
+**Features**:
+- Physically-based sky and fog
+- Ray-traced reflections and shadows (RTX GPUs)
+- Volumetric lighting
+- Advanced material system
+
+**Example: Improving Lighting with URP**
+
+```csharp
+// Add post-processing to your scene
+// 1. Create a Global Volume:
+//    GameObject > Volume > Global Volume
+// 2. Add a Volume Profile:
+//    Inspector > Profile > New
+// 3. Add overrides:
+//    - Bloom (intensity: 0.2, threshold: 1.0)
+//    - Vignette (intensity: 0.3)
+//    - Color Adjustments (saturation: 1.1)
+```
+
+## Creating Interactive UI for Robot Control
+
+Unity's UI system enables dashboards, control panels, and teleoperation interfaces.
+
+### Example: Simple Robot Control Panel
+
+Create a Canvas-based UI:
+
+```csharp
+// File: RobotControlPanel.cs
+using UnityEngine;
+using UnityEngine.UI;
+using Unity.Robotics.ROSTCPConnector;
+using RosMessageTypes.Geometry;
+
+public class RobotControlPanel : MonoBehaviour
+{
+    // UI Elements (assign in Inspector)
+    public Slider speedSlider;
+    public Button forwardButton;
+    public Button stopButton;
+    public Text statusText;
+
+    // ROS topic for velocity commands
+    private string cmdVelTopic = "/cmd_vel";
+    private ROSConnection ros;
+
+    void Start()
+    {
+        ros = ROSConnection.GetOrCreateInstance();
+        ros.RegisterPublisher<TwistMsg>(cmdVelTopic);
+
+        // Button listeners
+        forwardButton.onClick.AddListener(MoveForward);
+        stopButton.onClick.AddListener(Stop);
+    }
+
+    void MoveForward()
+    {
+        float speed = speedSlider.value;
+        var twist = new TwistMsg
+        {
+            linear = new Vector3Msg { x = speed, y = 0, z = 0 },
+            angular = new Vector3Msg { x = 0, y = 0, z = 0 }
+        };
+
+        ros.Publish(cmdVelTopic, twist);
+        statusText.text = $"Moving forward at {speed:F2} m/s";
+    }
+
+    void Stop()
+    {
+        var twist = new TwistMsg
+        {
+            linear = new Vector3Msg { x = 0, y = 0, z = 0 },
+            angular = new Vector3Msg { x = 0, y = 0, z = 0 }
+        };
+
+        ros.Publish(cmdVelTopic, twist);
+        statusText.text = "Stopped";
+    }
+}
+```
+
+**Create the UI**:
+1. Right-click in Hierarchy > **UI > Canvas**
+2. Add UI elements: **UI > Button**, **UI > Slider**, **UI > Text**
+3. Attach `RobotControlPanel` script to Canvas
+4. Assign UI references in Inspector
+
+## Publishing Data from Unity to ROS
+
+Unity can also publish sensor data or user commands back to ROS.
+
+### Example: Publishing Camera Images
+
+```csharp
+// File: CameraPublisher.cs
+using UnityEngine;
+using Unity.Robotics.ROSTCPConnector;
+using RosMessageTypes.Sensor;
+
+public class CameraPublisher : MonoBehaviour
+{
+    public Camera targetCamera;
+    public string topicName = "/unity/camera/image";
+    public float publishRate = 10.0f; // Hz
+
+    private ROSConnection ros;
+    private float nextPublishTime;
+
+    void Start()
+    {
+        ros = ROSConnection.GetOrCreateInstance();
+        ros.RegisterPublisher<ImageMsg>(topicName);
+    }
+
+    void Update()
+    {
+        if (Time.time >= nextPublishTime)
+        {
+            PublishImage();
+            nextPublishTime = Time.time + 1.0f / publishRate;
+        }
+    }
+
+    void PublishImage()
+    {
+        // Render camera to RenderTexture
+        RenderTexture rt = new RenderTexture(640, 480, 24);
+        targetCamera.targetTexture = rt;
+        targetCamera.Render();
+
+        // Read pixels
+        RenderTexture.active = rt;
+        Texture2D image = new Texture2D(640, 480, TextureFormat.RGB24, false);
+        image.ReadPixels(new Rect(0, 0, 640, 480), 0, 0);
+        image.Apply();
+
+        // Convert to ROS Image message
+        var imageMsg = new ImageMsg
+        {
+            header = new RosMessageTypes.Std.HeaderMsg
+            {
+                stamp = new RosMessageTypes.BuiltinInterfaces.TimeMsg
+                {
+                    sec = (int)Time.time,
+                    nanosec = (uint)((Time.time % 1) * 1e9)
+                }
+            },
+            height = (uint)image.height,
+            width = (uint)image.width,
+            encoding = "rgb8",
+            is_bigendian = 0,
+            step = (uint)(image.width * 3),
+            data = image.GetRawTextureData()
+        };
+
+        ros.Publish(topicName, imageMsg);
+
+        // Cleanup
+        targetCamera.targetTexture = null;
+        RenderTexture.active = null;
+        Destroy(rt);
+    }
+}
+```
+
+## Practical Example: Complete Gazebo-Unity Pipeline
+
+### Step 1: Launch Gazebo with a Robot
+
+```bash
+# Launch Gazebo with a simple robot (e.g., TurtleBot3)
+export TURTLEBOT3_MODEL=waffle
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+```
+
+### Step 2: Start ROS TCP Endpoint
+
+```bash
+source ~/ros_tcp_ws/install/setup.bash
+ros2 run ros_tcp_endpoint default_server_endpoint --ros-args -p ROS_IP:=0.0.0.0 -p ROS_TCP_PORT:=10000
+```
+
+### Step 3: Configure Unity
+
+1. Import TurtleBot3 URDF into Unity
+2. Create `JointStateSubscriber` script (see earlier example)
+3. Configure ROS settings (IP, port, ROS 2)
+4. Attach script to robot, assign joint references
+5. Press Play
+
+### Step 4: Control Robot from Gazebo, See in Unity
+
+In a new terminal:
+
+```bash
+# Publish velocity commands
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "linear:
+  x: 0.5
+angular:
+  z: 0.2" --rate 10
+```
+
+**Result**: Robot moves in Gazebo (physics), joint states published to `/joint_states`, Unity receives updates and animates robot smoothly.
+
+## Human-Robot Interaction Patterns
+
+### 1. Telepresence (Remote Operation)
+
+- **Use Case**: Control a remote robot from Unity interface
+- **Implementation**: Unity UI publishes `/cmd_vel`, robot executes, camera feed streams back
+- **Example Applications**: Remote surgery robots, planetary rovers, warehouse robots
+
+### 2. Augmented Reality Overlays
+
+- **Use Case**: Overlay digital information on robot camera feed
+- **Implementation**: Subscribe to robot camera topic, render in Unity with AR annotations
+- **Example Applications**: Maintenance assistance, training systems
+
+### 3. Virtual Reality Training
+
+- **Use Case**: Train operators in VR before using real robots
+- **Implementation**: Unity VR project, ROS integration for realistic robot behavior
+- **Example Applications**: Surgical training, hazardous environment training
+
+### 4. Fleet Management Dashboards
+
+- **Use Case**: Monitor and control multiple robots from a central interface
+- **Implementation**: Unity subscribes to multiple robot state topics, visualizes on map
+- **Example Applications**: Warehouse automation, delivery robot fleets
+
+## Performance Optimization Tips
+
+1. **Simplify Meshes**: Use low-poly models for real-time rendering (< 50k triangles per robot)
+2. **Occlusion Culling**: Enable in Unity to avoid rendering hidden objects
+3. **LOD (Level of Detail)**: Use Unity LOD Groups for distant robots
+4. **Texture Compression**: Compress textures to reduce memory usage
+5. **Batching**: Combine static meshes to reduce draw calls
+6. **Reduce Publish Rate**: Lower ROS message frequency (10-30 Hz sufficient for visualization)
+
+## Summary
+
+In this chapter, you learned:
+
+- Unity complements Gazebo by providing photorealistic rendering and rich UI capabilities
+- Unity Robotics Hub includes ROS TCP Connector, URDF Importer, and visualization tools
+- ROS TCP Endpoint bridges ROS 2 topics to Unity over TCP network connection
+- URDF robots can be imported directly into Unity with automatic hierarchy generation
+- URP and HDRP enable high-quality rendering with post-processing and advanced lighting
+- Interactive UIs for robot control are built using Unity's Canvas and UI system
+- Unity can both subscribe to (joint states, sensors) and publish (commands, camera images) ROS messages
+- Common patterns include telepresence, AR overlays, VR training, and fleet dashboards
+
+**Next Steps**: Proceed to [Chapter 4: Simulating Sensors (LiDAR, Depth Cameras, IMUs)](./sensor-simulation) to learn how to configure and visualize realistic sensor data in your digital twin.
+
+---
+
+**Further Reading**:
+- [Unity Robotics Hub Documentation](https://github.com/Unity-Technologies/Unity-Robotics-Hub)
+- [ROS TCP Connector Guide](https://github.com/Unity-Technologies/ROS-TCP-Connector)
+- [Unity URP Documentation](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest)

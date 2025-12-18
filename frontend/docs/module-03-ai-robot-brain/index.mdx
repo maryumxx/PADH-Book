@@ -1,0 +1,179 @@
+---
+id: module-03-ai-robot-brain
+title: "Module 3: The AI-Robot Brain (NVIDIA Isaac™)"
+sidebar_label: "Module 3: AI-Robot Brain"
+description: "Master advanced perception and training for humanoid robots using NVIDIA Isaac Sim, Isaac ROS, and Nav2 for intelligent navigation and decision-making."
+keywords: ["nvidia isaac", "isaac sim", "isaac ros", "vslam", "nav2", "perception", "synthetic data", "path planning", "humanoid navigation"]
+---
+
+# Module 3: The AI-Robot Brain (NVIDIA Isaac™)
+
+## Introduction
+
+Welcome to **Module 3**, where we explore the cognitive capabilities that transform a mechanical humanoid into an intelligent, autonomous agent. While Module 1 taught us the nervous system (ROS 2) and Module 2 showed us how to simulate physical worlds, this module focuses on **perception, learning, and navigation**—the core components of an AI-powered robotic brain.
+
+Modern humanoid robots need to:
+- **Perceive** their environment with high accuracy using cameras, LiDAR, and depth sensors
+- **Learn** from both real and synthetic data to improve their behavior
+- **Navigate** complex environments while avoiding obstacles and planning optimal paths
+- **Make decisions** in real-time with hardware-accelerated AI inference
+
+This module introduces you to **NVIDIA Isaac™**, a comprehensive platform for robot perception and training. You'll learn how to generate photorealistic synthetic data, deploy hardware-accelerated perception pipelines, implement Visual SLAM for localization, and use Nav2 for bipedal path planning.
+
+---
+
+## What You'll Learn
+
+By the end of this module, you will be able to:
+
+1. **Generate Synthetic Training Data** using NVIDIA Isaac Sim's photorealistic simulation
+2. **Deploy Hardware-Accelerated Perception** with Isaac ROS GEMs on NVIDIA GPUs
+3. **Implement Visual SLAM** (VSLAM) for real-time localization and mapping
+4. **Plan Humanoid Navigation** using Nav2 with bipedal motion constraints
+5. **Integrate AI Models** for object detection, segmentation, and scene understanding
+6. **Optimize Performance** using NVIDIA CUDA and TensorRT acceleration
+
+---
+
+## Prerequisites
+
+Before starting this module, you should have:
+
+- **Module 1 Knowledge**: Understanding of ROS 2 nodes, topics, services, and URDF
+- **Module 2 Knowledge**: Experience with Gazebo simulation and sensor integration
+- **Python Programming**: Familiarity with Python 3 and basic NumPy/OpenCV
+- **Linux Environment**: Ubuntu 20.04 or 22.04 (recommended for Isaac ROS)
+- **NVIDIA GPU**: RTX-series or Jetson platform (required for hardware acceleration)
+- **Docker Experience**: Basic understanding of containerization (helpful but not required)
+
+---
+
+## Module Structure
+
+This module is divided into four comprehensive chapters:
+
+### [Chapter 1: NVIDIA Isaac Sim and Synthetic Data Generation](./isaac-sim-synthetic-data)
+Learn how to create photorealistic simulation environments, generate labeled synthetic datasets for training AI models, and use domain randomization techniques to improve model generalization.
+
+**Key Topics:**
+- Isaac Sim setup and Omniverse integration
+- Photorealistic rendering with RTX ray tracing
+- Synthetic data generation (RGB, depth, semantic segmentation)
+- Domain randomization for robust AI training
+- USD (Universal Scene Description) for scene composition
+
+### [Chapter 2: Isaac ROS Hardware-Accelerated Perception](./isaac-ros-perception)
+Discover how to deploy GPU-accelerated perception pipelines using Isaac ROS GEMs (Graph-Enabled Microservices). Learn to process sensor data at high frame rates with minimal latency.
+
+**Key Topics:**
+- Isaac ROS architecture and NVIDIA acceleration
+- Image processing with CUDA and VPI (Vision Programming Interface)
+- Deep learning inference with TensorRT
+- AprilTag detection and pose estimation
+- Object detection and semantic segmentation
+
+### [Chapter 3: Visual SLAM for Humanoid Navigation](./visual-slam-navigation)
+Master Visual SLAM (Simultaneous Localization and Mapping) techniques to enable your humanoid robot to build maps and localize itself in real-time using camera data.
+
+**Key Topics:**
+- Visual SLAM fundamentals (feature extraction, matching, tracking)
+- Isaac ROS Visual SLAM with NVIDIA CUDA acceleration
+- Odometry estimation from stereo or depth cameras
+- Loop closure detection and map optimization
+- Integration with ROS 2 navigation stack
+
+### [Chapter 4: Nav2 Path Planning for Bipedal Movement](./nav2-bipedal-planning)
+Learn how to configure Nav2 (ROS 2 Navigation Stack) for bipedal humanoid robots, accounting for unique constraints like balance, center of mass, and footstep planning.
+
+**Key Topics:**
+- Nav2 architecture and behavior trees
+- Costmap configuration for humanoid footprint
+- Path planning algorithms (DWB, TEB, Smac Planner)
+- Bipedal motion constraints and stability
+- Recovery behaviors for humanoid navigation
+
+---
+
+## The NVIDIA Isaac Ecosystem
+
+NVIDIA Isaac is a comprehensive platform for AI-powered robotics:
+
+| Component | Purpose | Key Features |
+|-----------|---------|--------------|
+| **Isaac Sim** | Photorealistic simulation | RTX rendering, physics, synthetic data |
+| **Isaac ROS** | Hardware-accelerated perception | CUDA/TensorRT acceleration, ROS 2 integration |
+| **Isaac Cortex** | Behavior coordination | AI-driven task planning and execution |
+| **Isaac Manipulator** | Arm control | Motion planning for manipulation |
+| **Isaac AMR** | Autonomous mobile robots | Navigation and fleet management |
+
+This module focuses primarily on **Isaac Sim** and **Isaac ROS**, which are essential for perception and navigation in humanoid robotics.
+
+---
+
+## Real-World Applications
+
+The skills you learn in this module are directly applicable to:
+
+- **Service Robots**: Humanoids navigating hospitals, hotels, and retail environments
+- **Warehouse Automation**: Bipedal robots picking and placing items in tight spaces
+- **Research Platforms**: Academic and industrial robotics research
+- **Search and Rescue**: Autonomous navigation in complex, cluttered environments
+- **Entertainment and Media**: Motion capture, virtual production, and interactive experiences
+
+---
+
+## Hardware Requirements
+
+To follow along with hands-on examples, you'll need:
+
+**Minimum Setup:**
+- NVIDIA GPU with Compute Capability 7.0+ (RTX 2060 or better)
+- 16GB system RAM
+- Ubuntu 20.04 or 22.04
+- ROS 2 Humble or later
+
+**Recommended Setup:**
+- NVIDIA RTX 3080 or better (or Jetson AGX Orin for embedded deployment)
+- 32GB system RAM
+- SSD with 100GB+ free space
+- Stereo camera or depth sensor (Intel RealSense, ZED, etc.)
+
+**Cloud Alternative:**
+- NVIDIA Omniverse Cloud or AWS EC2 with GPU instances (g4dn, g5)
+
+---
+
+## Learning Path
+
+```
+Module 3 Learning Path:
+
+1. Isaac Sim → Generate synthetic training data
+2. Isaac ROS → Deploy perception on real hardware
+3. Visual SLAM → Build maps and localize
+4. Nav2 → Plan and execute navigation
+```
+
+Each chapter builds on the previous one, culminating in a fully autonomous humanoid navigation system.
+
+---
+
+## Getting Started
+
+Ready to build an AI-powered robotic brain? Let's begin with [**Chapter 1: NVIDIA Isaac Sim and Synthetic Data Generation**](./isaac-sim-synthetic-data).
+
+You'll set up Isaac Sim, create your first photorealistic simulation, and generate synthetic datasets for training perception models.
+
+---
+
+## Additional Resources
+
+- [NVIDIA Isaac Sim Documentation](https://docs.omniverse.nvidia.com/isaacsim/latest/)
+- [Isaac ROS Documentation](https://nvidia-isaac-ros.github.io/)
+- [Nav2 Documentation](https://navigation.ros.org/)
+- [NVIDIA Omniverse Platform](https://developer.nvidia.com/omniverse)
+- [ROS 2 Humble Documentation](https://docs.ros.org/en/humble/)
+
+---
+
+**Next**: [Chapter 1: NVIDIA Isaac Sim and Synthetic Data Generation →](./isaac-sim-synthetic-data)

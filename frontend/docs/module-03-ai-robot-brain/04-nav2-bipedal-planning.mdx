@@ -1,0 +1,679 @@
+---
+id: nav2-bipedal-planning
+title: "Chapter 4: Nav2 Path Planning for Bipedal Movement"
+sidebar_label: "Ch 4: Nav2 Bipedal Planning"
+description: "Configure the ROS 2 Navigation Stack (Nav2) for humanoid robots with bipedal motion constraints, footstep planning, and stability considerations."
+keywords: ["nav2", "path planning", "bipedal navigation", "humanoid navigation", "footstep planning", "costmap", "behavior trees", "recovery behaviors"]
+---
+
+# Chapter 4: Nav2 Path Planning for Bipedal Movement
+
+## Introduction
+
+Navigating a humanoid robot is fundamentally different from navigating a wheeled robot. While wheeled robots can turn in place and move omnidirectionally, humanoid robots must:
+
+- **Maintain balance** while walking
+- **Plan footsteps** that ensure stable contact with the ground
+- **Respect center of mass (CoM) constraints** to avoid tipping
+- **Execute smoother, slower motions** compared to wheeled platforms
+- **Handle stairs, uneven terrain, and obstacles** that require stepping over rather than around
+
+**Nav2 (ROS 2 Navigation Stack)** provides a flexible framework for autonomous navigation. While designed primarily for wheeled robots, it can be adapted for bipedal humanoids with careful configuration of costmaps, planners, and controllers.
+
+In this chapter, you'll learn:
+- Nav2 architecture and components
+- Configuring costmaps for humanoid footprints
+- Selecting and tuning path planners for bipedal constraints
+- Implementing recovery behaviors for humanoid robots
+- Integrating footstep planning with Nav2
+
+---
+
+## What is Nav2?
+
+**Nav2** is the official ROS 2 navigation framework, successor to the ROS 1 navigation stack. It provides:
+
+- **Global path planning**: High-level path from start to goal
+- **Local trajectory planning**: Real-time obstacle avoidance
+- **Costmap generation**: Spatial representation of obstacles and constraints
+- **Behavior trees**: Modular navigation logic (plan, follow path, recover)
+- **Recovery behaviors**: Handle failures (stuck, lost, collisions)
+
+### Nav2 Architecture
+
+```
+Sensor Data (LaserScan, PointCloud2, Odometry)
+         ↓
+   [Costmap Layers]
+         ↓
+   [Global Planner] → Global Path
+         ↓
+   [Local Controller] → Velocity Commands
+         ↓
+   Robot Motion (cmd_vel)
+```
+
+### Key Nav2 Components
+
+| Component | Role | Examples |
+|-----------|------|----------|
+| **Planner Server** | Computes global path | NavFn, Smac Planner, TEB |
+| **Controller Server** | Generates velocity commands | DWB, TEB, RPP |
+| **Behavior Server** | Executes recovery behaviors | Spin, backup, wait |
+| **BT Navigator** | Orchestrates navigation via behavior trees | XML-based logic |
+| **Costmap 2D** | Represents obstacles and constraints | Static, obstacle, inflation layers |
+
+---
+
+## Installing Nav2
+
+### Prerequisites
+
+- ROS 2 Humble or later
+- Visual SLAM or AMCL for localization (from Chapter 3)
+
+### Installation
+
+```bash
+sudo apt install ros-humble-navigation2 ros-humble-nav2-bringup
+```
+
+### Verify Installation
+
+```bash
+ros2 pkg list | grep nav2
+```
+
+You should see packages like `nav2_planner`, `nav2_controller`, `nav2_costmap_2d`, etc.
+
+---
+
+## Nav2 for Humanoid Robots: Key Challenges
+
+### 1. Footprint Definition
+
+Wheeled robots have simple circular or rectangular footprints. Humanoid robots have:
+- **Two separate feet** (non-convex footprint)
+- **Dynamic footprint** that changes during walking
+- **Clearance requirements** for leg swing
+
+**Solution**: Approximate with a conservative bounding box or use a custom footprint polygon.
+
+### 2. Kinematic Constraints
+
+Humanoid walking has:
+- **Limited turning radius** (can't turn in place without stepping)
+- **Minimum step length** and **maximum step length**
+- **Lateral step constraints** (sideways steps are slower)
+
+**Solution**: Configure velocity limits and acceleration constraints carefully.
+
+### 3. Center of Mass (CoM) Stability
+
+- Must keep CoM over the support polygon (feet contact area)
+- Sharp turns can cause tipping
+
+**Solution**: Use planners that respect stability margins (e.g., TEB with custom cost functions).
+
+---
+
+## Configuring Nav2 for Humanoids
+
+### Step 1: Define the Footprint
+
+Edit `nav2_params.yaml`:
+
+```yaml
+# File: nav2_params.yaml
+robot_base_frame: base_link
+global_frame: map
+odom_topic: /odometry/filtered  # From Visual SLAM or EKF
+
+# Footprint definition (conservative bounding box)
+footprint: "[ [0.15, 0.10], [0.15, -0.10], [-0.15, -0.10], [-0.15, 0.10] ]"
+# Humanoid is 0.3m long (front-back), 0.2m wide (left-right)
+
+# Alternative: circular approximation (radius)
+# robot_radius: 0.20
+```
+
+<Callout type="warning" title="Non-Convex Footprints">
+Nav2 requires convex footprints. For humanoid robots with two feet, use a convex hull that encloses both feet.
+</Callout>
+
+### Step 2: Set Velocity Limits
+
+Humanoid walking is slow and limited:
+
+```yaml
+# File: nav2_params.yaml (controller_server section)
+controller_server:
+  ros__parameters:
+    controller_frequency: 20.0  # 20 Hz control loop
+    min_x_velocity_threshold: 0.01
+    min_y_velocity_threshold: 0.01
+    min_theta_velocity_threshold: 0.01
+
+    # Velocity limits (in m/s and rad/s)
+    max_vel_x: 0.3  # Slow walking: 0.3 m/s (1 km/h)
+    min_vel_x: -0.1  # Slow backward walking
+    max_vel_y: 0.1   # Limited lateral movement
+    max_vel_theta: 0.5  # Slow turning: 0.5 rad/s (~30°/s)
+
+    # Acceleration limits
+    acc_lim_x: 0.2
+    acc_lim_y: 0.1
+    acc_lim_theta: 0.3
+```
+
+### Step 3: Configure Costmaps
+
+Nav2 uses **costmaps** to represent the environment. A costmap is a 2D grid where each cell has a cost (0 = free, 255 = obstacle).
+
+#### Global Costmap (Static Map)
+
+```yaml
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 1.0
+      publish_frequency: 1.0
+      global_frame: map
+      robot_base_frame: base_link
+      use_sim_time: False
+      resolution: 0.05  # 5cm per cell
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: True
+
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan pointcloud
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+        pointcloud:
+          topic: /camera/depth/points
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 5.0  # Inflate obstacles for safety margin
+        inflation_radius: 0.3  # 30cm buffer around obstacles
+```
+
+#### Local Costmap (Rolling Window)
+
+```yaml
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 5.0
+      publish_frequency: 2.0
+      global_frame: odom
+      robot_base_frame: base_link
+      use_sim_time: False
+      rolling_window: True  # Follow robot, not global map
+      width: 3  # 3m x 3m local window
+      height: 3
+      resolution: 0.05
+      plugins: ["obstacle_layer", "inflation_layer"]
+
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 5.0
+        inflation_radius: 0.3
+```
+
+---
+
+## Choosing a Planner for Bipedal Navigation
+
+Nav2 supports multiple planners. Here's how they compare for humanoid robots:
+
+### 1. NavFn (Dijkstra's Algorithm)
+
+**Pros**: Fast, deterministic, guaranteed to find a path if one exists
+**Cons**: Grid-based, doesn't consider kinematic constraints
+**Best for**: Global planning in known maps
+
+```yaml
+planner_server:
+  ros__parameters:
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      tolerance: 0.5
+      use_astar: True  # A* is faster than Dijkstra
+      allow_unknown: False
+```
+
+### 2. Smac Planner (Hybrid A*)
+
+**Pros**: Considers kinematic constraints (non-holonomic motion), smoother paths
+**Cons**: Slower than NavFn
+**Best for**: Humanoid global planning with turning constraints
+
+```yaml
+planner_server:
+  ros__parameters:
+    planner_plugins: ["SmacHybrid"]
+    SmacHybrid:
+      plugin: "nav2_smac_planner/SmacPlannerHybrid"
+      tolerance: 0.5
+      downsample_costmap: False
+      downsampling_factor: 1
+      allow_unknown: False
+      max_iterations: 1000000
+      max_planning_time: 3.5  # seconds
+      motion_model_for_search: "REEDS_SHEPP"  # Car-like motion
+      angle_quantization_bins: 72  # 5-degree increments
+      minimum_turning_radius: 0.4  # Humanoid turning radius
+      reverse_penalty: 2.0  # Penalize backward walking
+      change_penalty: 0.15  # Penalize direction changes
+      non_straight_penalty: 1.2
+      cost_penalty: 2.0
+```
+
+### 3. TEB (Timed Elastic Band)
+
+**Pros**: Considers dynamics, velocity/acceleration limits, very smooth paths
+**Cons**: Can get stuck in local minima, computationally expensive
+**Best for**: Local planning with dynamic obstacles
+
+```yaml
+controller_server:
+  ros__parameters:
+    controller_plugins: ["TEB"]
+    TEB:
+      plugin: "teb_local_planner::TebLocalPlannerROS"
+      min_obstacle_dist: 0.25  # Safety distance
+      max_vel_x: 0.3
+      max_vel_theta: 0.5
+      acc_lim_x: 0.2
+      acc_lim_theta: 0.3
+      footprint_model:
+        type: "polygon"
+        vertices: "[ [0.15, 0.10], [0.15, -0.10], [-0.15, -0.10], [-0.15, 0.10] ]"
+```
+
+**Recommendation**: Use **Smac Planner** for global planning and **DWB** (Dynamic Window Approach) for local control.
+
+---
+
+## Configuring the DWB Local Controller
+
+**DWB (Dynamic Window Approach)** samples velocity commands and scores them based on:
+- **Goal alignment**: How well the trajectory reaches the goal
+- **Obstacle proximity**: Avoid collisions
+- **Path alignment**: Follow the global plan
+
+```yaml
+controller_server:
+  ros__parameters:
+    controller_plugins: ["FollowPath"]
+    FollowPath:
+      plugin: "dwb_core::DWBLocalPlanner"
+
+      # Velocity sampling
+      vx_samples: 20
+      vy_samples: 5
+      vtheta_samples: 20
+
+      # Simulation
+      sim_time: 1.5  # Look ahead 1.5 seconds
+      discretize_by_time: False
+
+      # Trajectory critics (cost functions)
+      critics:
+        - "RotateToGoal"
+        - "Oscillation"
+        - "ObstacleFootprint"
+        - "GoalAlign"
+        - "PathAlign"
+        - "PathDist"
+        - "GoalDist"
+
+      # Weights (tune these for your robot)
+      ObstacleFootprint.scale: 10.0  # High penalty for collisions
+      PathAlign.scale: 32.0
+      GoalAlign.scale: 24.0
+      PathDist.scale: 32.0
+      GoalDist.scale: 24.0
+```
+
+---
+
+## Behavior Trees for Navigation Logic
+
+Nav2 uses **behavior trees (BT)** to orchestrate navigation. The default BT is:
+
+```xml
+<!-- File: navigate_w_replanning.xml -->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+      <PipelineSequence name="NavigateWithReplanning">
+        <!-- 1. Compute global path -->
+        <RateController hz="1.0">
+          <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+            <ComputePathToPose goal="{goal}" path="{path}"/>
+            <ClearEntireCostmap name="ClearGlobalCostmap" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </RecoveryNode>
+        </RateController>
+
+        <!-- 2. Follow the path -->
+        <RecoveryNode number_of_retries="1" name="FollowPath">
+          <FollowPath path="{path}" controller_id="FollowPath"/>
+          <ClearEntireCostmap name="ClearLocalCostmap" service_name="local_costmap/clear_entirely_local_costmap"/>
+        </RecoveryNode>
+      </PipelineSequence>
+
+      <!-- 3. Recovery behaviors (if navigation fails) -->
+      <SequenceStar name="RecoveryActions">
+        <ClearEntireCostmap name="ClearGlobalCostmap" service_name="global_costmap/clear_entirely_global_costmap"/>
+        <ClearEntireCostmap name="ClearLocalCostmap" service_name="local_costmap/clear_entirely_local_costmap"/>
+        <Spin spin_dist="1.57"/>  <!-- Spin 90 degrees -->
+        <Wait wait_duration="5"/>
+      </SequenceStar>
+    </RecoveryNode>
+  </BehaviorTree>
+</root>
+```
+
+### Custom Recovery for Humanoids
+
+Add humanoid-specific recovery behaviors:
+
+```xml
+<RecoveryNode number_of_retries="3">
+  <Sequence>
+    <!-- Try stepping sideways -->
+    <BackUp backup_dist="-0.2" backup_speed="0.05"/>
+
+    <!-- Small turn -->
+    <Spin spin_dist="0.785"/>  <!-- 45 degrees -->
+
+    <!-- Re-plan -->
+    <ClearEntireCostmap service_name="global_costmap/clear_entirely_global_costmap"/>
+  </Sequence>
+</RecoveryNode>
+```
+
+---
+
+## Launching Nav2
+
+### Complete Launch File
+
+```python
+# File: humanoid_nav2.launch.py
+import os
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+
+def generate_launch_description():
+    nav2_bringup_dir = get_package_share_directory('nav2_bringup')
+    params_file = os.path.join(get_package_share_directory('my_humanoid_nav'), 'config', 'nav2_params.yaml')
+
+    return LaunchDescription([
+        # 1. Launch localization (Visual SLAM from Chapter 3)
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(get_package_share_directory('isaac_ros_visual_slam'), 'launch', 'isaac_vslam_stereo.launch.py')
+            )
+        ),
+
+        # 2. Launch Nav2
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(nav2_bringup_dir, 'launch', 'navigation_launch.py')
+            ),
+            launch_arguments={
+                'params_file': params_file,
+                'use_sim_time': 'False'
+            }.items()
+        ),
+
+        # 3. Launch RViz
+        Node(
+            package='rviz2',
+            executable='rviz2',
+            name='rviz2',
+            arguments=['-d', os.path.join(nav2_bringup_dir, 'rviz', 'nav2_default_view.rviz')]
+        ),
+    ])
+```
+
+### Run Navigation
+
+```bash
+ros2 launch my_humanoid_nav humanoid_nav2.launch.py
+```
+
+### Send a Navigation Goal
+
+```bash
+# Via CLI
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
+  "{pose: {header: {frame_id: 'map'}, pose: {position: {x: 2.0, y: 1.0, z: 0.0}, orientation: {w: 1.0}}}}"
+
+# Via RViz: Use "2D Goal Pose" tool
+```
+
+---
+
+## Footstep Planning for Humanoids
+
+Nav2 plans paths for the robot's center, but humanoids need **footstep plans** (where to place each foot).
+
+### Approach 1: Post-Process Nav2 Path
+
+1. Nav2 generates a path for the base center
+2. A **footstep planner** converts this into left/right foot placements
+
+**Libraries**:
+- **humanoid_navigation** (ROS 1, needs porting)
+- **bipedal_locomotion_framework** (NVIDIA/IIT)
+
+### Approach 2: Direct Footstep Planning
+
+Replace Nav2's planner with a footstep-aware planner:
+
+**Example**: **HRP4 Footstep Planner** (A* over discrete foot placements)
+
+```python
+# Pseudocode for footstep planning
+def plan_footsteps(start_pose, goal_pose):
+    footsteps = []
+    current_foot = "left"
+    current_pose = start_pose
+
+    while distance(current_pose, goal_pose) > step_threshold:
+        # Compute next foot placement
+        next_foot_pose = compute_next_step(current_pose, goal_pose, current_foot)
+
+        # Check stability and collision
+        if is_stable(next_foot_pose) and is_collision_free(next_foot_pose):
+            footsteps.append((current_foot, next_foot_pose))
+            current_pose = next_foot_pose
+            current_foot = "right" if current_foot == "left" else "left"
+        else:
+            # Adjust step or fail
+            break
+
+    return footsteps
+```
+
+### Approach 3: Hybrid (Recommended)
+
+1. Use Nav2 for global planning and obstacle avoidance
+2. Use a footstep planner for local execution
+3. Feedback loop: If footstep planner fails, trigger Nav2 re-planning
+
+---
+
+## Handling Stairs and Uneven Terrain
+
+Nav2's 2D costmaps don't handle 3D obstacles well. For stairs:
+
+### Solution 1: Multi-Layer Costmaps
+
+Use **3D costmap layers** (experimental):
+
+```yaml
+plugins: ["voxel_layer", "inflation_layer"]
+voxel_layer:
+  plugin: "nav2_costmap_2d::VoxelLayer"
+  z_resolution: 0.1
+  max_obstacle_height: 2.0
+```
+
+### Solution 2: Semantic Annotations
+
+Annotate the map with traversable regions:
+
+```yaml
+# Mark stairs as "traversable" in semantic map
+stairs_region:
+  type: "staircase"
+  step_height: 0.15
+  step_depth: 0.3
+```
+
+Then configure the planner to allow navigation through stairs.
+
+---
+
+## Tuning for Real-World Performance
+
+### 1. Reduce Oscillations
+
+If the robot oscillates (left-right swaying):
+
+```yaml
+# Increase oscillation critic weight
+Oscillation.scale: 5.0
+```
+
+### 2. Smooth Velocity Commands
+
+Use a **velocity smoother**:
+
+```yaml
+controller_server:
+  ros__parameters:
+    use_velocity_smoother: True
+    velocity_smoother:
+      smoothing_frequency: 20.0
+      max_velocity: [0.3, 0.1, 0.5]  # [x, y, theta]
+      max_acceleration: [0.2, 0.1, 0.3]
+```
+
+### 3. Adjust Inflation Radius
+
+Too large = robot can't fit through doorways
+Too small = robot collides with obstacles
+
+```yaml
+inflation_layer:
+  inflation_radius: 0.25  # Start with robot width + 5cm
+```
+
+---
+
+## Debugging Nav2
+
+### Visualize Costmaps in RViz
+
+Add these displays:
+- **Global Costmap**: `/global_costmap/costmap`
+- **Local Costmap**: `/local_costmap/costmap`
+- **Global Plan**: `/plan`
+- **Local Plan**: `/local_plan`
+
+### Check TF Tree
+
+Nav2 requires:
+```
+map → odom → base_link
+```
+
+Verify with:
+```bash
+ros2 run tf2_tools view_frames
+evince frames.pdf
+```
+
+### Monitor Navigation Status
+
+```bash
+# Check if planner is computing paths
+ros2 topic echo /plan
+
+# Check velocity commands
+ros2 topic echo /cmd_vel
+
+# Check navigation status
+ros2 topic echo /navigate_to_pose/_action/status
+```
+
+---
+
+## Summary
+
+In this chapter, you learned:
+
+- ✅ How Nav2 works and its key components
+- ✅ Configuring Nav2 for humanoid robots (footprint, velocity limits, costmaps)
+- ✅ Choosing planners (NavFn, Smac, TEB) for bipedal constraints
+- ✅ Setting up DWB local controller for smooth motion
+- ✅ Using behavior trees for navigation logic
+- ✅ Integrating footstep planning with Nav2
+- ✅ Handling stairs and uneven terrain
+- ✅ Debugging and tuning for real-world performance
+
+**Congratulations!** You've completed Module 3. You now have the tools to build an AI-powered humanoid robot with:
+- **Perception** (Isaac ROS, Chapter 2)
+- **Localization** (Visual SLAM, Chapter 3)
+- **Navigation** (Nav2, Chapter 4)
+
+---
+
+## Next Steps
+
+With Modules 1-3 complete, you're ready for:
+- **Module 4**: Advanced manipulation (arms, grasping, object interaction)
+- **Module 5**: Human-robot interaction (speech, gestures, social behaviors)
+- **Module 6**: Learning and adaptation (reinforcement learning, imitation learning)
+
+---
+
+## Additional Resources
+
+- [Nav2 Documentation](https://navigation.ros.org/)
+- [Behavior Trees in Nav2](https://navigation.ros.org/behavior_trees/index.html)
+- [DWB Local Planner](https://navigation.ros.org/configuration/packages/configuring-dwb-controller.html)
+- [Humanoid Navigation Papers](https://ieeexplore.ieee.org/document/8593780) (HRP-4 footstep planning)
+
+**End of Module 3** 🎉
