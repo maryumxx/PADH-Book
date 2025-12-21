@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from './Navbar';
 import GlassMorphismFooter from './GlassMorphismFooter';
+import BookChatWidget from './BookChatWidget';
 
 interface CustomLayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,7 @@ export default function CustomLayout({ children }: CustomLayoutProps) {
         {children}
       </main>
       <GlassMorphismFooter />
+      <BookChatWidget />
     </div>
   );
 }

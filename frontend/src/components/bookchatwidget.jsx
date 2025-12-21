@@ -81,7 +81,6 @@ export default function BookChatWidget() {
           justifyContent: "center",
           padding: 0,
           overflow: "hidden",
-          position: "relative",
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.background = "#262626";
