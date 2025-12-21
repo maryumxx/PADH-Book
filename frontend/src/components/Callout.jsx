@@ -8,28 +8,28 @@ import clsx from 'clsx';
 export default function Callout({ children, type = 'info', title }) {
   const types = {
     info: {
-      bg: 'bg-blue-50 dark:bg-blue-900/20',
-      border: 'border-blue-200 dark:border-blue-800',
+      bg: 'bg-gray-100 dark:bg-gray-800',
+      border: 'border-gray-300 dark:border-gray-600',
       icon: '\u2139\ufe0f',
-      titleColor: 'text-blue-900 dark:text-blue-100',
+      titleColor: 'text-gray-900 dark:text-gray-100',
     },
     warning: {
-      bg: 'bg-yellow-50 dark:bg-yellow-900/20',
-      border: 'border-yellow-200 dark:border-yellow-800',
+      bg: 'bg-gray-100 dark:bg-gray-800',
+      border: 'border-gray-400 dark:border-gray-500',
       icon: '\u26a0\ufe0f',
-      titleColor: 'text-yellow-900 dark:text-yellow-100',
+      titleColor: 'text-gray-900 dark:text-gray-100',
     },
     danger: {
-      bg: 'bg-red-50 dark:bg-red-900/20',
-      border: 'border-red-200 dark:border-red-800',
+      bg: 'bg-gray-200 dark:bg-gray-900',
+      border: 'border-gray-500 dark:border-gray-400',
       icon: '\ud83d\uded1',
-      titleColor: 'text-red-900 dark:text-red-100',
+      titleColor: 'text-gray-900 dark:text-gray-100',
     },
     success: {
-      bg: 'bg-green-50 dark:bg-green-900/20',
-      border: 'border-green-200 dark:border-green-800',
+      bg: 'bg-gray-50 dark:bg-gray-800',
+      border: 'border-gray-300 dark:border-gray-600',
       icon: '\u2705',
-      titleColor: 'text-green-900 dark:text-green-100',
+      titleColor: 'text-gray-900 dark:text-gray-100',
     },
   };
 

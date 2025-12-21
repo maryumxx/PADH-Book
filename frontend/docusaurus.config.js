@@ -50,29 +50,14 @@ const config = {
       // Replace with your project's social card
       image: "img/docusaurus-social-card.jpg",
       navbar: {
-        title: "Physical AI Book",
+        hideOnScroll: false,
+        style: 'primary',
+        title: "",
         logo: {
-          alt: "Physical AI Logo",
-          src: "img/logo.svg",
+          alt: "Physical AI",
+          src: "img/logo.jpg",
         },
-        items: [
-          {
-            type: "docSidebar",
-            sidebarId: "tutorialSidebar",
-            position: "left",
-            label: "Documentation",
-          },
-          {
-            to: "/about",
-            label: "About",
-            position: "left",
-          },
-          {
-            to: "/contact",
-            label: "Contact",
-            position: "left",
-          },
-        ],
+        items: [],
       },
       footer: {
         style: "dark",
@@ -104,7 +89,7 @@ const config = {
       },
       prism: {
         theme: require("prism-react-renderer").themes.github,
-        darkTheme: require("prism-react-renderer").themes.dracula,
+        darkTheme: require("prism-react-renderer").themes.vsDark,
       },
       colorMode: {
         defaultMode: "light",

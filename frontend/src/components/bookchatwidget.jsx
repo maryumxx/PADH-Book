@@ -68,16 +68,37 @@ export default function BookChatWidget() {
           width: "60px",
           height: "60px",
           borderRadius: "50%",
-          background: "#1a56db",
+          background: "#171717",
           color: "white",
-          border: "none",
+          border: "1px solid #262626",
           fontSize: "28px",
           cursor: "pointer",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
           zIndex: 1000,
+          transition: "all 0.2s ease",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 0,
+          overflow: "hidden",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "#262626";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "#171717";
         }}
       >
-        💬
+        <img
+          src="/bot.jpg"
+          alt="Chat Bot"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            borderRadius: "50%",
+          }}
+        />
       </button>
 
       {open && (
@@ -88,25 +109,26 @@ export default function BookChatWidget() {
             right: "30px",
             width: "380px",
             height: "550px",
-            background: "white",
+            background: "#ffffff",
             borderRadius: "12px",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
             display: "flex",
             flexDirection: "column",
             zIndex: 1000,
-            border: "1px solid #e5e7eb",
+            border: "1px solid #e5e5e5",
           }}
         >
           <div
             style={{
               padding: "16px",
-              background: "#1a56db",
-              color: "white",
+              background: "#171717",
+              color: "#ffffff",
               borderTopLeftRadius: "12px",
               borderTopRightRadius: "12px",
-              fontWeight: "bold",
+              fontWeight: "600",
               display: "flex",
               justifyContent: "space-between",
+              borderBottom: "1px solid #262626",
             }}
           >
             Book Assistant
@@ -115,9 +137,16 @@ export default function BookChatWidget() {
               style={{
                 background: "none",
                 border: "none",
-                color: "white",
+                color: "#ffffff",
                 fontSize: "20px",
                 cursor: "pointer",
+                transition: "opacity 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = "0.7";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = "1";
               }}
             >
               ✕
@@ -129,11 +158,11 @@ export default function BookChatWidget() {
               flex: 1,
               padding: "16px",
               overflowY: "auto",
-              background: "#f9fafb",
+              background: "#fafafa",
             }}
           >
             {messages.length === 0 && (
-              <div style={{ color: "#666", fontStyle: "italic" }}>
+              <div style={{ color: "#737373", fontStyle: "italic", fontSize: "14px" }}>
                 Ask me anything about the book!
               </div>
             )}
@@ -150,12 +179,14 @@ export default function BookChatWidget() {
                     display: "inline-block",
                     padding: "10px 14px",
                     borderRadius: "18px",
-                    background: msg.role === "user" ? "#1a56db" : "white",
-                    color: msg.role === "user" ? "white" : "black",
+                    background: msg.role === "user" ? "#171717" : "#ffffff",
+                    color: msg.role === "user" ? "#ffffff" : "#171717",
                     border:
-                      msg.role === "assistant" ? "1px solid #e5e7eb" : "none",
+                      msg.role === "assistant" ? "1px solid #e5e5e5" : "1px solid #171717",
                     maxWidth: "80%",
                     whiteSpace: "pre-wrap",
+                    fontSize: "14px",
+                    lineHeight: "1.5",
                   }}
                 >
                   {msg.content ||
@@ -172,8 +203,8 @@ export default function BookChatWidget() {
           <div
             style={{
               padding: "12px",
-              borderTop: "1px solid #e5e7eb",
-              background: "white",
+              borderTop: "1px solid #e5e5e5",
+              background: "#ffffff",
             }}
           >
             <input
@@ -185,9 +216,18 @@ export default function BookChatWidget() {
               disabled={loading}
               style={{
                 width: "78%",
-                padding: "10px",
+                padding: "10px 14px",
                 borderRadius: "20px",
-                border: "1px solid #ccc",
+                border: "1px solid #d4d4d4",
+                fontSize: "14px",
+                outline: "none",
+                transition: "border-color 0.2s",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "#737373";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "#d4d4d4";
               }}
             />
             <button
@@ -196,11 +236,25 @@ export default function BookChatWidget() {
               style={{
                 marginLeft: "8px",
                 padding: "10px 16px",
-                background: "#1a56db",
-                color: "white",
-                border: "none",
+                background: "#171717",
+                color: "#ffffff",
+                border: "1px solid #171717",
                 borderRadius: "20px",
-                cursor: "pointer",
+                cursor: loading ? "not-allowed" : "pointer",
+                fontSize: "14px",
+                fontWeight: "500",
+                transition: "all 0.2s",
+                opacity: loading ? 0.5 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.background = "#262626";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.background = "#171717";
+                }
               }}
             >
               Send

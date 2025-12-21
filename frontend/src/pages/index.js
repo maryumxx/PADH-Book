@@ -1,29 +1,33 @@
 import React from 'react';
-import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import Layout from '@theme/Layout';
+import CustomLayout from '@site/src/components/CustomLayout';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@site/src/components/shadcn-ui/Card';
 import { Button } from '@site/src/components/shadcn-ui/Button';
+import FeatureIcon from '@site/src/components/FeatureIcon';
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
   return (
-    <header className={clsx('hero hero--primary')}>
-      <div className="container">
-        <h1 className="hero__title text-5xl font-bold mb-4">{siteConfig.title}</h1>
-        <p className="hero__subtitle text-xl mb-8">{siteConfig.tagline}</p>
-        <div className="flex gap-4 justify-center">
-          <Link to="/docs/intro">
-            <Button size="lg">
-              Get Started
-            </Button>
-          </Link>
-          <Link to="/about">
-            <Button variant="outline" size="lg">
-              Learn More
-            </Button>
-          </Link>
+    <header className="relative bg-gradient-to-br from-[#7befff] via-[#9c5ffc] to-[#d49bc9] dark:from-[#9c5ffc] dark:via-[#d49bc9] dark:to-[#ffcda8] text-white py-20 overflow-hidden">
+      {/* Glassmorphism overlay */}
+      <div className="absolute inset-0 backdrop-blur-sm bg-white/5"></div>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <h1 className="text-5xl font-bold mb-4 drop-shadow-2xl">{siteConfig.title}</h1>
+          <p className="text-xl mb-8 text-white/90 drop-shadow-lg">{siteConfig.tagline}</p>
+          <div className="flex gap-4 justify-center">
+            <Link to="/docs/intro">
+              <Button size="lg" className="bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                Get Started
+              </Button>
+            </Link>
+            <Link to="/about">
+              <Button variant="outline" size="lg" className="border-white/40 bg-white/10 backdrop-blur-md text-white hover:bg-white/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                Learn More
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </header>
@@ -34,33 +38,42 @@ function PhysicalAIIntro() {
   return (
     <section className="py-16 px-4">
       <div className="container mx-auto max-w-4xl">
-        <h2 className="text-3xl font-bold text-center mb-8">What is Physical AI?</h2>
-        <p className="text-lg text-center mb-6">
+        <h2 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">What is Physical AI?</h2>
+        <p className="text-lg text-center mb-6 text-gray-700 dark:text-gray-300">
           Physical AI represents the convergence of artificial intelligence with the physical world.
           It's where robots don't just compute—they perceive, reason, and act in real environments.
         </p>
         <div className="grid md:grid-cols-3 gap-6">
           <Card>
-            <CardHeader>
+            <CardHeader className="text-center">
+              <div className="mb-4 flex justify-center">
+                <FeatureIcon type="eye" />
+              </div>
               <CardTitle className="text-xl">Perceive</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="text-center">
               <p>Sensors capture the physical environment: cameras see, LIDAR measures distance, IMUs track orientation.</p>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader>
+            <CardHeader className="text-center">
+              <div className="mb-4 flex justify-center">
+                <FeatureIcon type="brain" />
+              </div>
               <CardTitle className="text-xl">Process</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="text-center">
               <p>AI algorithms interpret sensor data, make decisions, and plan actions using neural networks and ML models.</p>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader>
+            <CardHeader className="text-center">
+              <div className="mb-4 flex justify-center">
+                <FeatureIcon type="gear" />
+              </div>
               <CardTitle className="text-xl">Act</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="text-center">
               <p>Actuators and motors execute commands, moving limbs, gripping objects, and navigating spaces.</p>
             </CardContent>
           </Card>
@@ -103,12 +116,12 @@ function ModuleOverview() {
   ];
 
   return (
-    <section className="py-16 px-4 bg-gray-50 dark:bg-gray-900">
+    <section className="py-16 px-4 bg-gray-50 dark:bg-gray-900" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
       <div className="container mx-auto max-w-6xl">
-        <h2 className="text-3xl font-bold text-center mb-12">Available Modules</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">Available Modules</h2>
         <div className="grid md:grid-cols-1 gap-8">
           {modules.map((module, idx) => (
-            <Card key={idx} className="hover:shadow-lg transition-shadow">
+            <Card key={idx}>
               <CardHeader>
                 <CardTitle className="text-2xl">{module.title}</CardTitle>
                 <CardDescription className="text-base mt-2">
@@ -118,7 +131,7 @@ function ModuleOverview() {
               <CardContent>
                 <div className="mb-4">
                   <p className="font-semibold mb-2">Topics Covered:</p>
-                  <ul className="list-disc list-inside space-y-1">
+                  <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
                     {module.topics.map((topic, topicIdx) => (
                       <li key={topicIdx}>{topic}</li>
                     ))}
@@ -146,47 +159,49 @@ function Features() {
     {
       title: 'Interactive Examples',
       description: 'Copy-paste code samples with syntax highlighting. Run them in your own environment.',
-      icon: '💻',
+      icon: 'code',
     },
     {
       title: 'Visual Diagrams',
       description: 'Complex concepts explained with clear illustrations, flowcharts, and animations.',
-      icon: '📊',
+      icon: 'diagram',
     },
     {
       title: 'Practical Projects',
       description: 'Hands-on exercises reinforce learning. Build real robots, not just theory.',
-      icon: '🤖',
+      icon: 'robot',
     },
     {
       title: 'Best Practices',
       description: 'Industry-standard approaches from professionals building production robots.',
-      icon: '✨',
+      icon: 'sparkle',
     },
     {
       title: 'Progressive Learning',
       description: 'Start from fundamentals, build to advanced topics. Each chapter prepares you for the next.',
-      icon: '📚',
+      icon: 'book',
     },
     {
       title: 'Always Updated',
       description: 'Documentation evolves with the field. Latest tools, techniques, and frameworks.',
-      icon: '🔄',
+      icon: 'refresh',
     },
   ];
 
   return (
     <section className="py-16 px-4">
       <div className="container mx-auto max-w-6xl">
-        <h2 className="text-3xl font-bold text-center mb-12">Why This Documentation?</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">Why This Documentation?</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, idx) => (
             <Card key={idx}>
-              <CardHeader>
-                <div className="text-4xl mb-2">{feature.icon}</div>
+              <CardHeader className="text-center">
+                <div className="mb-4 flex justify-center">
+                  <FeatureIcon type={feature.icon} />
+                </div>
                 <CardTitle className="text-xl">{feature.title}</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="text-center">
                 <p>{feature.description}</p>
               </CardContent>
             </Card>
@@ -199,15 +214,17 @@ function Features() {
 
 function CallToAction() {
   return (
-    <section className="py-16 px-4 bg-primary-light dark:bg-primary-dark text-white">
-      <div className="container mx-auto max-w-4xl text-center">
-        <h2 className="text-3xl font-bold mb-4">Ready to Build Intelligent Robots?</h2>
-        <p className="text-xl mb-8">
+    <section className="relative py-16 px-4 bg-gradient-to-r from-[#ffcda8] via-[#d49bc9] to-[#9c5ffc] dark:from-[#7befff] dark:via-[#9c5ffc] dark:to-[#d49bc9] text-white overflow-hidden">
+      {/* Glassmorphism overlay */}
+      <div className="absolute inset-0 backdrop-blur-sm bg-white/5"></div>
+      <div className="relative container mx-auto max-w-4xl text-center">
+        <h2 className="text-3xl font-bold mb-4 drop-shadow-lg">Ready to Build Intelligent Robots?</h2>
+        <p className="text-xl mb-8 text-white/90 drop-shadow-md">
           Start with Module 1 and master the foundation of Physical AI. From ROS 2 basics to robot modeling,
           you'll gain the skills to create sophisticated robotic systems.
         </p>
         <Link to="/docs/intro">
-          <Button variant="default" size="lg" className="bg-white text-primary hover:bg-gray-100">
+          <Button variant="default" size="lg" className="bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             Begin Your Journey →
           </Button>
         </Link>
@@ -217,19 +234,13 @@ function CallToAction() {
 }
 
 export default function Home() {
-  const { siteConfig } = useDocusaurusContext();
   return (
-    <Layout
-      title={`Home`}
-      description="Comprehensive documentation for Physical AI, robotics, and ROS 2 development"
-    >
+    <CustomLayout>
       <HomepageHeader />
-      <main>
-        <PhysicalAIIntro />
-        <ModuleOverview />
-        <Features />
-        <CallToAction />
-      </main>
-    </Layout>
+      <PhysicalAIIntro />
+      <ModuleOverview />
+      <Features />
+      <CallToAction />
+    </CustomLayout>
   );
 }
