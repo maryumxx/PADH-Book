@@ -69,7 +69,7 @@ export default function BookChatWidget() {
           height: "60px",
           borderRadius: "50%",
           background: "#171717",
-          color: "white",
+          color: "#ffffff",
           border: "1px solid #262626",
           fontSize: "28px",
           cursor: "pointer",
@@ -81,6 +81,7 @@ export default function BookChatWidget() {
           justifyContent: "center",
           padding: 0,
           overflow: "hidden",
+          position: "relative",
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.background = "#262626";
@@ -89,16 +90,29 @@ export default function BookChatWidget() {
           e.currentTarget.style.background = "#171717";
         }}
       >
-        <img
-          src="/bot.jpg"
-          alt="Chat Bot"
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(135deg, #7befff 0%, #9c5ffc 50%, #d49bc9 100%)",
+          borderRadius: "50%",
+          filter: "blur(12px)",
+          opacity: "0.3",
+        }}></div>
+        <svg
           style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            borderRadius: "50%",
+            position: "relative",
+            width: "60%",
+            height: "60%",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
           }}
-        />
+          viewBox="0 0 24 24"
+        >
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
       </button>
 
       {open && (
@@ -141,12 +155,20 @@ export default function BookChatWidget() {
                 fontSize: "20px",
                 cursor: "pointer",
                 transition: "opacity 0.2s",
+                width: "24px",
+                height: "24px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "4px",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.opacity = "0.7";
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.opacity = "1";
+                e.currentTarget.style.background = "none";
               }}
             >
               ✕
@@ -162,7 +184,7 @@ export default function BookChatWidget() {
             }}
           >
             {messages.length === 0 && (
-              <div style={{ color: "#737373", fontStyle: "italic", fontSize: "14px" }}>
+              <div style={{ color: "#737373", fontStyle: "italic", fontSize: "14px", textAlign: "center", paddingTop: "20px" }}>
                 Ask me anything about the book!
               </div>
             )}
@@ -207,58 +229,60 @@ export default function BookChatWidget() {
               background: "#ffffff",
             }}
           >
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              placeholder="Ask about the book..."
-              disabled={loading}
-              style={{
-                width: "78%",
-                padding: "10px 14px",
-                borderRadius: "20px",
-                border: "1px solid #d4d4d4",
-                fontSize: "14px",
-                outline: "none",
-                transition: "border-color 0.2s",
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = "#737373";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = "#d4d4d4";
-              }}
-            />
-            <button
-              onClick={sendMessage}
-              disabled={loading}
-              style={{
-                marginLeft: "8px",
-                padding: "10px 16px",
-                background: "#171717",
-                color: "#ffffff",
-                border: "1px solid #171717",
-                borderRadius: "20px",
-                cursor: loading ? "not-allowed" : "pointer",
-                fontSize: "14px",
-                fontWeight: "500",
-                transition: "all 0.2s",
-                opacity: loading ? 0.5 : 1,
-              }}
-              onMouseEnter={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.background = "#262626";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.background = "#171717";
-                }
-              }}
-            >
-              Send
-            </button>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                placeholder="Ask about the book..."
+                disabled={loading}
+                style={{
+                  flex: 1,
+                  padding: "10px 14px",
+                  borderRadius: "20px",
+                  border: "1px solid #d4d4d4",
+                  fontSize: "14px",
+                  outline: "none",
+                  transition: "border-color 0.2s",
+                  marginRight: "8px",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "#737373";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "#d4d4d4";
+                }}
+              />
+              <button
+                onClick={sendMessage}
+                disabled={loading}
+                style={{
+                  padding: "10px 16px",
+                  background: "#171717",
+                  color: "#ffffff",
+                  border: "1px solid #171717",
+                  borderRadius: "20px",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  transition: "all 0.2s",
+                  opacity: loading ? 0.5 : 1,
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.background = "#262626";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.background = "#171717";
+                  }
+                }}
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
       )}
