@@ -357,7 +357,12 @@ a:hover {
   opacity: 0.8;
 }
 
-/* Navbar styling - Minimalist Clean */
+/* Hide default Docusaurus navbar */
+nav.navbar {
+  display: none !important;
+}
+
+/* Navbar styling - Minimalist Clean (for custom navbar) */
 .navbar {
   border-bottom: 1px solid var(--color-gray-200);
   box-shadow: none;
