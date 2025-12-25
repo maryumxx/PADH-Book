@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 import os
 import json
+from functools import lru_cache
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -28,15 +29,17 @@ cohere_client = cohere.Client(os.getenv("COHERE_API_KEY"))
 qdrant = QdrantClient(url=os.getenv("QDRANT_URL"), api_key=os.getenv("QDRANT_API_KEY"))
 collection_name = os.getenv("QDRANT_COLLECTION", "padh_book")
 
-# Embedding function
+# Embedding function with caching to reduce API calls
+@lru_cache(maxsize=1000)
 def embed_query(text: str):
+    """Cache embeddings to reduce Cohere API calls"""
     res = cohere_client.embed(model="embed-english-v3.0", input_type="search_query", texts=[text])
-    return res.embeddings[0]
+    return tuple(res.embeddings[0])  # Convert to tuple for caching
 
 # Retrieval function
 def retrieve_context(query: str, top_k: int = 5):
-    vector = embed_query(query)
-    
+    vector = list(embed_query(query))  # Convert cached tuple back to list
+
     # Use query_points to avoid attribute errors
     results_obj = qdrant.query_points(
         collection_name=collection_name,
@@ -85,7 +88,22 @@ async def chat(request: ChatRequest):
     try:
         context, sources = retrieve_context(user_message)
     except Exception as e:
-        return StreamingResponse(iter([f"Retrieval error: {str(e)}"]), media_type="text/plain")
+        error_msg = str(e)
+        # Check if it's a rate limit error
+        if "429" in error_msg or "trial" in error_msg.lower() or "rate limit" in error_msg.lower():
+            return StreamingResponse(
+                iter([
+                    "⚠️ API Rate Limit Exceeded\n\n"
+                    "Your Cohere API trial key has exceeded its monthly limit (1000 calls/month).\n\n"
+                    "To fix this:\n"
+                    "1. Get a new API key at https://dashboard.cohere.com/api-keys\n"
+                    "2. Update COHERE_API_KEY in your backend/.env file\n"
+                    "3. Restart the backend server\n\n"
+                    "You can also upgrade to a production key for higher rate limits."
+                ]),
+                media_type="text/plain"
+            )
+        return StreamingResponse(iter([f"Retrieval error: {error_msg}"]), media_type="text/plain")
 
     full_prompt = f"""
 Context from the book:
